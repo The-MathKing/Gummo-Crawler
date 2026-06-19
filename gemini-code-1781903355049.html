@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dungeon Crawler</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+  body { 
+    margin: 0; 
+    background: #0d0d12; 
+    color: white; 
+    font-family: 'Press Start 2P', monospace; 
+    overflow: hidden; 
+    user-select: none; 
+  }
+  #game-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  #game-container { 
+    position: relative; 
+    width: 800px; 
+    height: 600px; 
+    box-shadow: 0 0 20px rgba(0,0,0,0.8);
+    background: #000;
+  }
+  canvas { 
+    display: block; 
+    image-rendering: pixelated; 
+  }
+  .overlay { 
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background: rgba(0,0,0,0.85); 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+    align-items: center; 
+    text-align: center; 
+    z-index: 10;
+  }
+  .hidden { display: none !important; }
+  h1 { color: #facc15; margin-bottom: 20px; font-size: 32px; text-shadow: 4px 4px 0 #b45309; }
+  h2 { color: #fff; margin-bottom: 20px; font-size: 24px; }
+  p { line-height: 1.5; font-size: 12px; }
+  button { 
+    font-family: 'Press Start 2P', monospace; 
+    background: #1e1e24; 
+    color: #fff; 
+    border: 4px solid #facc15; 
+    padding: 15px 30px; 
+    cursor: pointer; 
+    margin-top: 20px; 
+    font-size: 16px;
+    transition: transform 0.1s, background 0.1s;
+  }
+  button:hover { background: #333; transform: scale(1.05); }
+  button:active { transform: scale(0.95); }
+  
+  #hud { 
+    position: absolute; 
+    top: 15px; 
+    left: 15px; 
+    display: flex; 
+    justify-content: space-between; 
+    width: 770px; 
+    pointer-events: none; 
+    z-index: 5;
+    font-size: 14px;
+    text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+  }
+  .stat { color: #fff; display: flex; align-items: center; gap: 10px; }
+  .stat-hp { color: #ef4444; }
+  .stat-gold { color: #facc15; }
+  
+  #shop-ui { 
+    background: #111827; 
+    border: 6px solid #4b5563; 
+    padding: 30px; 
+    text-align: left; 
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  }
+  .shop-item { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    margin: 15px 0; 
+    width: 400px; 
+    font-size: 12px;
+  }
+  .shop-btn { 
+    padding: 10px; 
+    margin-left: 10px; 
+    margin-top: 0;
+    font-size: 10px;
+    border-color: #4b5563;
+  }
+  .shop-btn:hover:not(:disabled) { border-color: #facc15; }
+  .shop-btn:disabled { opacity: 0.5; cursor: not-allowed; border-color: #374151; }
+  
+  #notification {
+    position: absolute;
+    bottom: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 10px 20px;
+    border: 2px solid white;
+    border-radius: 4px;
+    font-size: 12px;
+    z-index: 20;
+    pointer-events: none;
+    transition: opacity 0.5s;
+    opacity: 0;
+  }
+</style>
+</head>
+<body>
+
+<div id="game-wrapper">
+  <div id="game-container">
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    
+    <div id="hud">
+      <div class="stat"><span id="hud-floor">Floor: 1</span></div>
+      <div class="stat stat-hp">HP: <span id="hud-hp">3/3</span></div>
+      <div class="stat stat-gold">Gold: <span id="hud-gold">0</span></div>
+    </div>
+
+    <div id="notification"></div>
+
+    <div id="menu-overlay" class="overlay">
+      <h1>Dungeon Crawler</h1>
+      <p>WASD to move, Mouse Click to shoot.</p>
+      <p>Defeat enemies, collect gold, buy upgrades.</p>
+      <p>Beware the Boss on Floor 5!</p>
+      <button id="start-btn">START GAME</button>
+    </div>
+
+    <div id="shop-overlay" class="overlay hidden">
+      <div id="shop-ui">
+        <h2 style="text-align:center; color:#facc15;">SHOP</h2>
+        <div class="shop-item">
+          <span>+1 Max HP (Cost: 10g)</span>
+          <button class="shop-btn" id="buy-hp">BUY</button>
+        </div>
+        <div class="shop-item">
+          <span>+1 Damage (Cost: 15g)</span>
+          <button class="shop-btn" id="buy-dmg">BUY</button>
+        </div>
+        <div class="shop-item">
+          <span>+Speed (Cost: 10g)</span>
+          <button class="shop-btn" id="buy-spd">BUY</button>
+        </div>
+        <div class="shop-item">
+          <span>Heal 1 HP (Cost: 5g)</span>
+          <button class="shop-btn" id="buy-heal">BUY</button>
+        </div>
+        <div style="text-align:center; margin-top: 30px;">
+          <button id="close-shop-btn">LEAVE SHOP</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="gameover-overlay" class="overlay hidden">
+      <h1 style="color:#ef4444;">GAME OVER</h1>
+      <p id="stats-text"></p>
+      <button id="restart-btn">TRY AGAIN</button>
+    </div>
+    
+    <div id="victory-overlay" class="overlay hidden">
+      <h1 style="color:#facc15;">VICTORY!</h1>
+      <p>You defeated the boss!</p>
+      <p id="victory-stats-text"></p>
+      <button id="continue-btn">KEEP PLAYING</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// --- ASSET GENERATION ---
+const colors = {
+  '.': 'transparent',
+  'b': '#000000',
+  'w': '#FFFFFF',
+  'g': '#555555',
+  'r': '#ef4444',
+  'G': '#22c55e',
+  'B': '#3b82f6',
+  'y': '#facc15',
+  'o': '#f97316',
+  'p': '#ec4899',
+  'br': '#78350f',
+  'dg': '#374151',
+  'lg': '#d1d5db',
+  'db': '#1e3a8a',
+  'lb': '#60a5fa',
+  'e': '#fbbf24',
+  'P': '#6b21a8'
+};
+
+function createSprite(lines) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 16;
+  canvas.height = 16;
+  const ctx = canvas.getContext('2d');
+  for(let y=0; y<16; y++) {
+    for(let x=0; x<16; x++) {
+      const char = lines[y][x] || '.';
+      if(char !== '.') {
+        ctx.fillStyle = colors[char] || char; 
+        ctx.fillRect(x, y, 1, 1);
+      }
+    }
+  }
+  return canvas;
+}
+
+const SPRITES = {
+  player: createSprite([
+    '......bbbb......',
+    '.....bwwwwb.....',
+    '....bwbbbbwb....',
+    '....bwb..bwb....',
+    '....bwwwwwwb....',
+    '.....bbwwbb.....',
+    '.....bwbbrb.....',
+    '....bbbbbrbb....',
+    '...b.bwbbrb.b...',
+    '...b.bbwwbb.b...',
+    '...b.bwbbrb.b...',
+    '...b.b.bb.b.b...',
+    '......b..b......',
+    '......b..b......',
+    '.....bb..bb.....',
+    '................'
+  ]),
+  slime: createSprite([
+    '................',
+    '................',
+    '................',
+    '......bbbb......',
+    '....bbGGGGbb....',
+    '...bGGGGGGGGb...',
+    '..bGGbbGGbbGGb..',
+    '..bGGwwGGwwGGb..',
+    '..bGGGGGGGGGGb..',
+    '.bGGGGGGGGGGGGb.',
+    '.bGGGGGGGGGGGGb.',
+    '.bGGGGGGGGGGGGb.',
+    '.bGGGGGGGGGGGGb.',
+    '..bbbbbbbbbbbb..',
+    '................',
+    '................'
+  ]),
+  skeleton: createSprite([
+    '......bbbb......',
+    '.....bwwwwb.....',
+    '....bwbbbbwb....',
+    '....bwb..bwb....',
+    '....bwwwwwwb....',
+    '.....bbwwbb.....',
+    '.....bwwwwb.....',
+    '....bbbbbbbb....',
+    '...bwbbwwbbwb...',
+    '...bwbwwwwbwb...',
+    '...bwbwwwwbwb...',
+    '...b.b.ww.b.b...',
+    '......b..b......',
+    '......b..b......',
+    '.....bb..bb.....',
+    '................'
+  ]),
+  boss: createSprite([
+    '......bbbb......',
+    '....bbPPrrbb....',
+    '...bPPrrrrPPb...',
+    '..bPbbPPrrbbPb..',
+    '..bPwPPrrrPwPb..',
+    '..bPPPPPPPPPeb..',
+    '.bPPPPbbbbPPPPb.',
+    '.bPPPbbwwbbPPPb.',
+    '.bPPbbwwwwbbPPb.',
+    '.bPPbwwwwwwbPPb.',
+    '.bPPbwwwwwwbPPb.',
+    '..bPbbwwwwbbPb..',
+    '..bPPbbbbbbPPb..',
+    '...bPPPPPPPPb...',
+    '....bbbbbbbb....',
+    '................'
+  ]),
+  gold: createSprite([
+    '................',
+    '................',
+    '................',
+    '................',
+    '......bbbb......',
+    '.....byyyyb.....',
+    '....bywwwwyb....',
+    '....byyyyyyb....',
+    '....byyyyyyb....',
+    '....byyyyyyb....',
+    '.....byyyyb.....',
+    '......bbbb......',
+    '................',
+    '................',
+    '................',
+    '................'
+  ]),
+  projectile: createSprite([
+    '................',
+    '................',
+    '................',
+    '.......bb.......',
+    '......byyb......',
+    '.....byyyyb.....',
+    '.....byyyyb.....',
+    '......byyb......',
+    '.......bb.......',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................'
+  ]),
+  arrow: createSprite([
+    '.......b........',
+    '......bgb.......',
+    '.....bgggb......',
+    '......bgb.......',
+    '.......b........',
+    '.......br.......',
+    '.......br.......',
+    '.......br.......',
+    '.......br.......',
+    '.......br.......',
+    '......bwb.......',
+    '.....bwbwb......',
+    '....bwb.bwb.....',
+    '................',
+    '................',
+    '................'
+  ]),
+  stairs: createSprite([
+    'bbbbbbbbbbbbbbbb',
+    'bbbbbbbbbbbbbbbb',
+    'bbbbbbbbbbgdbbbb',
+    'bbbbbbbbbbgdbbbb',
+    'bbbbbbgdbbgdbbbb',
+    'bbbbbbgdbbgdbbbb',
+    'bbgdbbgdbbgdbbbb',
+    'bbgdbbgdbbgdbbbb',
+    'bbgdbbgdbbgdbbbb',
+    'bbgdbbgdbbgdbbbb',
+    'bbgdbbgdbbgdbbbb',
+    'bbgdbbgdbbgdbbbb',
+    'bbbbbbbbbbbbbbbb',
+    'bbbbbbbbbbbbbbbb',
+    'bbbbbbbbbbbbbbbb',
+    'bbbbbbbbbbbbbbbb'
+  ]),
+  shopkeeper: createSprite([
+    '......bbbb......',
+    '.....bwwwwb.....',
+    '....bwbbbbwb....',
+    '....bwb..bwb....',
+    '....bwwwwwwb....',
+    '.....bbyybb.....',
+    '....bbyyyybb....',
+    '...b.byyyyb.b...',
+    '...b.bbwwbb.b...',
+    '...b.bbrrbb.b...',
+    '...b.b.bb.b.b...',
+    '......b..b......',
+    '......b..b......',
+    '.....bb..bb.....',
+    '................',
+    '................'
+  ]),
+  wall_top: createSprite([
+    'bbbbbbbbbbbbbbbb',
+    'bbbbbbbbbbbbbbbb',
+    'bgdgdbgdgdbgdbdb',
+    'bbbbbbbbbbbbbbbb',
+    'bdbdgdbdgdbdbdgb',
+    'bbbbbbbbbbbbbbbb',
+    'bgdgdbgdgdbgdbdb',
+    'bbbbbbbbbbbbbbbb',
+    'bdbdgdbdgdbdbdgb',
+    'bbbbbbbbbbbbbbbb',
+    'bgdgdbgdgdbgdbdb',
+    'bbbbbbbbbbbbbbbb',
+    'bdbdgdbdgdbdbdgb',
+    'bbbbbbbbbbbbbbbb',
+    'bgdgdbgdgdbgdbdb',
+    'bbbbbbbbbbbbbbbb'
+  ])
+};
+
+// Floor mapping
+colors['db'] = '#27272a';
+colors['dg'] = '#3f3f46';
+SPRITES.floor = createSprite([
+  'dbdbdbdbdbdbdbdb',
+  'dbdgdbdbdgdbdbdg',
+  'dbdbdbdbdbdbdbdb',
+  'dbdbdgdbdbdbdgdb',
+  'dbdbdbdbdbdbdbdb',
+  'dbdgdbdbdgdbdbdg',
+  'dbdbdbdbdbdbdbdb',
+  'dbdbdgdbdbdbdgdb',
+  'dbdbdbdbdbdbdbdb',
+  'dbdgdbdbdgdbdbdg',
+  'dbdbdbdbdbdbdbdb',
+  'dbdbdgdbdbdbdgdb',
+  'dbdbdbdbdbdbdbdb',
+  'dbdgdbdbdgdbdbdg',
+  'dbdbdbdbdbdbdbdb',
+  'dbdbdgdbdbdbdgdb'
+]);
+
+// --- CONSTANTS & CONFIG ---
+const TILE_SIZE = 32; // Map tile size
+const MAP_W = 40;     // Map width in tiles
+const MAP_H = 30;     // Map height in tiles
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+// Disable smoothing for pixel art
+ctx.imageSmoothingEnabled = false;
+
+// --- GAME STATE ---
+let STATE = 'MENU'; // MENU, PLAYING, SHOP, GAMEOVER, VICTORY
+let keys = {};
+let mouse = { x: 0, y: 0, down: false };
+let camera = { x: 0, y: 0 };
+
+let level = 1;
+let map = []; // 2D array of tiles. 0: wall, 1: floor
+let entities = [];
+let totalGoldCollected = 0;
+let enemiesDefeated = 0;
+let bossDefeated = false;
+
+let player = null;
+
+// --- INPUT HANDLING ---
+window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+canvas.addEventListener('mousemove', e => {
+  const rect = canvas.getBoundingClientRect();
+  mouse.x = e.clientX - rect.left;
+  mouse.y = e.clientY - rect.top;
+});
+canvas.addEventListener('mousedown', e => { if(STATE === 'PLAYING') mouse.down = true; });
+canvas.addEventListener('mouseup', e => { mouse.down = false; });
+
+// --- UTILS ---
+function dist(x1, y1, x2, y2) { return Math.sqrt((x2-x1)**2 + (y2-y1)**2); }
+function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function rectIntersect(r1, r2) {
+  return !(r2.x > r1.x + r1.w || 
+           r2.x + r2.w < r1.x || 
+           r2.y > r1.y + r1.h ||
+           r2.y + r2.h < r1.y);
+}
+
+function showNotification(msg) {
+  const el = document.getElementById('notification');
+  el.innerText = msg;
+  el.style.opacity = 1;
+  setTimeout(() => el.style.opacity = 0, 2000);
+}
+
+function updateHUD() {
+  document.getElementById('hud-floor').innerText = `Floor: ${level}`;
+  if(player) {
+    document.getElementById('hud-hp').innerText = `${player.hp}/${player.maxHp}`;
+    document.getElementById('hud-gold').innerText = player.gold;
+  }
+}
+
+// --- CLASSES ---
+class Entity {
+  constructor(x, y, w, h, sprite) {
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.sprite = sprite;
+    this.vx = 0;
+    this.vy = 0;
+    this.speed = 100; // pixels per second
+    this.hp = 1;
+    this.maxHp = 1;
+    this.dead = false;
+    this.faction = 'neutral';
+  }
+  update(dt) {
+    this.x += this.vx * dt;
+    this.y += this.vy * dt;
+    this.handleWallCollisions();
+  }
+  draw(ctx) {
+    if(this.sprite) {
+      ctx.drawImage(this.sprite, this.x - camera.x, this.y - camera.y, this.w, this.h);
+    } else {
+      ctx.fillStyle = 'red';
+      ctx.fillRect(this.x - camera.x, this.y - camera.y, this.w, this.h);
+    }
+  }
+  handleWallCollisions() {
+    const margin = 2; // slight tolerance
+    const left = Math.floor((this.x + margin) / TILE_SIZE);
+    const right = Math.floor((this.x + this.w - margin) / TILE_SIZE);
+    const top = Math.floor((this.y + margin) / TILE_SIZE);
+    const bottom = Math.floor((this.y + this.h - margin) / TILE_SIZE);
+
+    if (this.vx > 0) { // right
+      if (map[top] && map[top][right] === 0 || map[bottom] && map[bottom][right] === 0) {
+        this.x = right * TILE_SIZE - this.w;
+        this.vx = 0;
+      }
+    } else if (this.vx < 0) { // left
+      if (map[top] && map[top][left] === 0 || map[bottom] && map[bottom][left] === 0) {
+        this.x = (left + 1) * TILE_SIZE;
+        this.vx = 0;
+      }
+    }
+
+    const newLeft = Math.floor((this.x + margin) / TILE_SIZE);
+    const newRight = Math.floor((this.x + this.w - margin) / TILE_SIZE);
+    
+    if (this.vy > 0) { // down
+      if (map[bottom] && (map[bottom][newLeft] === 0 || map[bottom][newRight] === 0)) {
+        this.y = bottom * TILE_SIZE - this.h;
+        this.vy = 0;
+      }
+    } else if (this.vy < 0) { // up
+      if (map[top] && (map[top][newLeft] === 0 || map[top][newRight] === 0)) {
+        this.y = (top + 1) * TILE_SIZE;
+        this.vy = 0;
+      }
+    }
+  }
+  takeDamage(amt) {
+    this.hp -= amt;
+    if(this.hp <= 0) {
+      this.die();
+    }
+  }
+  die() {
+    this.dead = true;
+  }
+}
+
+class Player extends Entity {
+  constructor(x, y) {
+    super(x, y, 24, 24, SPRITES.player);
+    this.faction = 'player';
+    this.maxHp = 5;
+    this.hp = 5;
+    this.speed = 150;
+    this.gold = 0;
+    this.dmg = 1;
+    this.fireRate = 0.4;
+    this.fireCooldown = 0;
+  }
+  update(dt) {
+    this.vx = 0;
+    this.vy = 0;
+    if(keys['w'] || keys['arrowup']) this.vy -= this.speed;
+    if(keys['s'] || keys['arrowdown']) this.vy += this.speed;
+    if(keys['a'] || keys['arrowleft']) this.vx -= this.speed;
+    if(keys['d'] || keys['arrowright']) this.vx += this.speed;
+
+    if(this.vx !== 0 && this.vy !== 0) {
+      const invMag = 1 / Math.sqrt(2);
+      this.vx *= invMag;
+      this.vy *= invMag;
+    }
+
+    super.update(dt);
+
+    if(this.fireCooldown > 0) this.fireCooldown -= dt;
+    if(mouse.down && this.fireCooldown <= 0) {
+      this.shoot();
+      this.fireCooldown = this.fireRate;
+      mouse.down = false;
+    }
+    
+    updateHUD();
+  }
+  shoot() {
+    const cx = this.x + this.w/2;
+    const cy = this.y + this.h/2;
+    const mx = mouse.x + camera.x;
+    const my = mouse.y + camera.y;
+    const angle = Math.atan2(my - cy, mx - cx);
+    
+    const p = new Projectile(cx - 8, cy - 8, Math.cos(angle), Math.sin(angle), 'player', this.dmg, SPRITES.projectile);
+    entities.push(p);
+  }
+  die() {
+    super.die();
+    gameOver();
+  }
+}
+
+class Enemy extends Entity {
+  constructor(x, y, type) {
+    super(x, y, 24, 24, null);
+    this.type = type;
+    this.faction = 'enemy';
+    this.cooldown = 0;
+    
+    if(type === 'slime') {
+      this.sprite = SPRITES.slime;
+      this.maxHp = 3;
+      this.hp = 3;
+      this.speed = 60;
+    } else if (type === 'skeleton') {
+      this.sprite = SPRITES.skeleton;
+      this.maxHp = 2;
+      this.hp = 2;
+      this.speed = 40;
+    } else if (type === 'boss') {
+      this.sprite = SPRITES.boss;
+      this.w = 64;
+      this.h = 64;
+      this.maxHp = 50;
+      this.hp = 50;
+      this.speed = 30;
+    }
+  }
+  update(dt) {
+    if(!player || player.dead) return;
+    const d = dist(this.x, this.y, player.x, player.y);
+    
+    if(d < 400) { 
+      const angle = Math.atan2(player.y - this.y, player.x - this.x);
+      
+      if(this.type === 'slime') {
+        this.vx = Math.cos(angle) * this.speed;
+        this.vy = Math.sin(angle) * this.speed;
+        
+        if(d < 30 && this.cooldown <= 0) {
+          player.takeDamage(1);
+          this.cooldown = 1; 
+        }
+      } 
+      else if (this.type === 'skeleton') {
+        if(d > 150) {
+          this.vx = Math.cos(angle) * this.speed;
+          this.vy = Math.sin(angle) * this.speed;
+        } else if (d < 100) {
+          this.vx = -Math.cos(angle) * this.speed;
+          this.vy = -Math.sin(angle) * this.speed;
+        } else {
+          this.vx = 0; this.vy = 0;
+        }
+        
+        if(this.cooldown <= 0) {
+          const p = new Projectile(this.x+this.w/2 - 8, this.y+this.h/2 - 8, Math.cos(angle), Math.sin(angle), 'enemy', 1, SPRITES.arrow);
+          entities.push(p);
+          this.cooldown = 2;
+        }
+      }
+      else if (this.type === 'boss') {
+        this.vx = Math.cos(angle) * this.speed;
+        this.vy = Math.sin(angle) * this.speed;
+        
+        if(this.cooldown <= 0) {
+          for(let i=0; i<8; i++) {
+            const a = (Math.PI*2/8) * i;
+            const p = new Projectile(this.x+this.w/2 - 8, this.y+this.h/2 - 8, Math.cos(a), Math.sin(a), 'enemy', 1, SPRITES.arrow);
+            entities.push(p);
+          }
+          this.cooldown = 2.5;
+        }
+        
+        if(d < 50 && this.cooldown <= 1) {
+           player.takeDamage(1);
+           this.cooldown = 2;
+        }
+      }
+    } else {
+      this.vx = 0; this.vy = 0;
+    }
+    
+    if(this.cooldown > 0) this.cooldown -= dt;
+    super.update(dt);
+  }
+  draw(ctx) {
+    super.draw(ctx);
+    if(this.hp < this.maxHp) {
+      const sx = this.x - camera.x;
+      const sy = this.y - camera.y - 8;
+      ctx.fillStyle = 'red';
+      ctx.fillRect(sx, sy, this.w, 4);
+      ctx.fillStyle = 'lime';
+      ctx.fillRect(sx, sy, this.w * (this.hp/this.maxHp), 4);
+    }
+  }
+  die() {
+    super.die();
+    enemiesDefeated++;
+    const dropCount = this.type === 'boss' ? 20 : randInt(1, 3);
+    for(let i=0; i<dropCount; i++) {
+      entities.push(new Item(this.x + randInt(0, this.w), this.y + randInt(0, this.h), 'gold'));
+    }
+    if(this.type === 'boss') {
+      bossDefeated = true;
+      victory();
+    }
+  }
+}
+
+class Projectile extends Entity {
+  constructor(x, y, dx, dy, owner, dmg, sprite) {
+    super(x, y, 16, 16, sprite);
+    this.dx = dx;
+    this.dy = dy;
+    this.speed = 300;
+    this.owner = owner;
+    this.dmg = dmg;
+    this.life = 2; 
+  }
+  update(dt) {
+    this.x += this.dx * this.speed * dt;
+    this.y += this.dy * this.speed * dt;
+    this.life -= dt;
+    if(this.life <= 0) this.die();
+    
+    const tx = Math.floor(this.x / TILE_SIZE);
+    const ty = Math.floor(this.y / TILE_SIZE);
+    if(map[ty] && map[ty][tx] === 0) {
+      this.die();
+    }
+    
+    for(const e of entities) {
+      if(!e.dead && e !== this && e.faction !== 'neutral' && e.faction !== this.owner) {
+        if(rectIntersect(this, e)) {
+          e.takeDamage(this.dmg);
+          this.die();
+          break;
+        }
+      }
+    }
+  }
+}
+
+class Item extends Entity {
+  constructor(x, y, type) {
+    super(x, y, 16, 16, type === 'gold' ? SPRITES.gold : SPRITES.stairs); 
+    this.type = type;
+    this.pickupDelay = 0.5; 
+  }
+  update(dt) {
+    if(this.pickupDelay > 0) this.pickupDelay -= dt;
+    if(this.pickupDelay <= 0 && player && !player.dead && rectIntersect(this, player)) {
+      this.die();
+      if(this.type === 'gold') {
+        player.gold += 1;
+        totalGoldCollected += 1;
+      } else if (this.type === 'stairs') {
+        nextFloor();
+      }
+    }
+  }
+}
+
+class NPC extends Entity {
+  constructor(x, y) {
+    super(x, y, 24, 24, SPRITES.shopkeeper);
+    this.interactCooldown = 0;
+  }
+  update(dt) {
+    if(this.interactCooldown > 0) this.interactCooldown -= dt;
+    if(player && !player.dead && dist(this.x, this.y, player.x, player.y) < 50) {
+      if(this.interactCooldown <= 0) {
+        showNotification("Press E to Shop");
+        if(keys['e'] || rectIntersect(this, player)) {
+          openShop();
+          this.interactCooldown = 2; 
+          keys['e'] = false;
+        }
+      }
+    }
+  }
+}
+
+// --- LEVEL GENERATION ---
+function generateMap() {
+  map = [];
+  for(let y=0; y<MAP_H; y++) {
+    map[y] = [];
+    for(let x=0; x<MAP_W; x++) {
+      map[y][x] = 0;
+    }
+  }
+  entities = [];
+  
+  const rooms = [];
+  const numRooms = randInt(5, 8);
+  
+  for(let i=0; i<numRooms; i++) {
+    const rw = randInt(5, 10);
+    const rh = randInt(5, 10);
+    const rx = randInt(2, MAP_W - rw - 2);
+    const ry = randInt(2, MAP_H - rh - 2);
+    
+    let overlap = false;
+    for(const r of rooms) {
+      if(!(rx + rw < r.x || rx > r.x + r.w || ry + rh < r.y || ry > r.y + r.h)) {
+        overlap = true; break;
+      }
+    }
+    if(overlap) continue;
+    
+    rooms.push({x: rx, y: ry, w: rw, h: rh});
+    for(let y=ry; y<ry+rh; y++) {
+      for(let x=rx; x<rx+rw; x++) {
+        map[y][x] = 1;
+      }
+    }
+  }
+  
+  for(let i=1; i<rooms.length; i++) {
+    const r1 = rooms[i-1];
+    const r2 = rooms[i];
+    const c1x = Math.floor(r1.x + r1.w/2);
+    const c1y = Math.floor(r1.y + r1.h/2);
+    const c2x = Math.floor(r2.x + r2.w/2);
+    const c2y = Math.floor(r2.y + r2.h/2);
+    
+    let x = c1x, y = c1y;
+    while(x !== c2x) {
+      if(map[y]) map[y][x] = 1;
+      if(map[y+1]) map[y+1][x] = 1; 
+      x += Math.sign(c2x - x);
+    }
+    while(y !== c2y) {
+      if(map[y]) map[y][x] = 1;
+      if(map[y]) map[y][x+1] = 1;
+      y += Math.sign(c2y - y);
+    }
+  }
+  
+  const startRoom = rooms[0];
+  const px = (startRoom.x + startRoom.w/2) * TILE_SIZE;
+  const py = (startRoom.y + startRoom.h/2) * TILE_SIZE;
+  
+  if(!player) {
+    player = new Player(px, py);
+  } else {
+    player.x = px;
+    player.y = py;
+  }
+  entities.push(player);
+  
+  entities.push(new NPC(px + 40, py - 40));
+  
+  for(let i=1; i<rooms.length; i++) {
+    const r = rooms[i];
+    
+    if(level % 5 === 0 && i === rooms.length - 1) {
+      entities.push(new Enemy((r.x + r.w/2)*TILE_SIZE, (r.y + r.h/2)*TILE_SIZE, 'boss'));
+    } else {
+      const numEnemies = randInt(1, 1 + Math.floor(level/2));
+      for(let e=0; e<numEnemies; e++) {
+        const ex = (r.x + randInt(1, r.w-2)) * TILE_SIZE;
+        const ey = (r.y + randInt(1, r.h-2)) * TILE_SIZE;
+        const type = Math.random() > 0.6 ? 'skeleton' : 'slime';
+        entities.push(new Enemy(ex, ey, type));
+      }
+    }
+    
+    if(i === rooms.length - 1 && level % 5 !== 0) {
+      const sx = (r.x + r.w/2) * TILE_SIZE;
+      const sy = (r.y + r.h/2) * TILE_SIZE;
+      entities.push(new Item(sx, sy, 'stairs'));
+    }
+  }
+}
+
+function nextFloor() {
+  level++;
+  generateMap();
+  showNotification("Floor " + level);
+}
+
+// --- RENDERING ---
+function drawMap() {
+  const startX = Math.max(0, Math.floor(camera.x / TILE_SIZE));
+  const startY = Math.max(0, Math.floor(camera.y / TILE_SIZE));
+  const endX = Math.min(MAP_W, startX + canvas.width / TILE_SIZE + 2);
+  const endY = Math.min(MAP_H, startY + canvas.height / TILE_SIZE + 2);
+
+  for(let y=startY; y<endY; y++) {
+    for(let x=startX; x<endX; x++) {
+      if(y < 0 || y >= MAP_H || x < 0 || x >= MAP_W) continue;
+      const tile = map[y][x];
+      const px = x * TILE_SIZE - camera.x;
+      const py = y * TILE_SIZE - camera.y;
+      
+      if(tile === 0) {
+        ctx.drawImage(SPRITES.wall_top, px, py, TILE_SIZE, TILE_SIZE);
+      } else if (tile === 1) {
+        ctx.drawImage(SPRITES.floor, px, py, TILE_SIZE, TILE_SIZE);
+      }
+    }
+  }
+}
+
+// --- MAIN LOOP ---
+let lastTime = 0;
+function loop(timestamp) {
+  const dt = Math.min((timestamp - lastTime) / 1000, 0.1);
+  lastTime = timestamp;
+  
+  if(STATE === 'PLAYING') {
+    for(let i = entities.length - 1; i >= 0; i--) {
+      const e = entities[i];
+      e.update(dt);
+      if(e.dead) entities.splice(i, 1);
+    }
+    
+    if(player) {
+      camera.x = player.x + player.w/2 - canvas.width/2;
+      camera.y = player.y + player.h/2 - canvas.height/2;
+    }
+    
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    drawMap();
+    
+    entities.sort((a,b) => (a.y+a.h) - (b.y+b.h));
+    for(const e of entities) e.draw(ctx);
+  }
+  
+  requestAnimationFrame(loop);
+}
+
+// --- UI & MENUS ---
+function init() {
+  document.getElementById('start-btn').onclick = () => {
+    document.getElementById('menu-overlay').classList.add('hidden');
+    startGame();
+  };
+  document.getElementById('restart-btn').onclick = () => {
+    document.getElementById('gameover-overlay').classList.add('hidden');
+    startGame();
+  };
+  document.getElementById('continue-btn').onclick = () => {
+    document.getElementById('victory-overlay').classList.add('hidden');
+    nextFloor(); 
+    STATE = 'PLAYING';
+  };
+  document.getElementById('close-shop-btn').onclick = () => {
+    document.getElementById('shop-overlay').classList.add('hidden');
+    STATE = 'PLAYING';
+    keys = {}; 
+  };
+  
+  const buy = (cost, fn) => {
+    if(player.gold >= cost) {
+      player.gold -= cost;
+      fn();
+      updateHUD();
+      updateShopUI();
+    }
+  };
+  document.getElementById('buy-hp').onclick = () => buy(10, () => { player.maxHp++; player.hp++; });
+  document.getElementById('buy-dmg').onclick = () => buy(15, () => { player.dmg++; });
+  document.getElementById('buy-spd').onclick = () => buy(10, () => { player.speed += 20; });
+  document.getElementById('buy-heal').onclick = () => buy(5, () => { player.hp = Math.min(player.maxHp, player.hp + 1); });
+  
+  requestAnimationFrame(loop);
+}
+
+function startGame() {
+  level = 1;
+  totalGoldCollected = 0;
+  enemiesDefeated = 0;
+  bossDefeated = false;
+  player = null; 
+  generateMap();
+  STATE = 'PLAYING';
+  updateHUD();
+}
+
+function gameOver() {
+  STATE = 'GAMEOVER';
+  document.getElementById('stats-text').innerText = `Floors Cleared: ${level-1}\nEnemies Defeated: ${enemiesDefeated}\nGold Collected: ${totalGoldCollected}`;
+  document.getElementById('gameover-overlay').classList.remove('hidden');
+}
+
+function victory() {
+  STATE = 'VICTORY';
+  document.getElementById('victory-stats-text').innerText = `Enemies Defeated: ${enemiesDefeated}\nGold Collected: ${totalGoldCollected}`;
+  document.getElementById('victory-overlay').classList.remove('hidden');
+}
+
+function openShop() {
+  STATE = 'SHOP';
+  document.getElementById('shop-overlay').classList.remove('hidden');
+  updateShopUI();
+}
+
+function updateShopUI() {
+  document.getElementById('buy-hp').disabled = player.gold < 10;
+  document.getElementById('buy-dmg').disabled = player.gold < 15;
+  document.getElementById('buy-spd').disabled = player.gold < 10;
+  document.getElementById('buy-heal').disabled = player.gold < 5 || player.hp >= player.maxHp;
+}
+
+init();
+</script>
+</body>
+</html>
