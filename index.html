@@ -3955,32 +3955,31 @@
           player.dmg += 5 * scale;
           player.speed += 50 * scale;
         };
-      } else {
-        if (type === 'heal') {
-          let amt = Math.max(1, rarity.mult) * scale;
-          if (isLowHealth) amt = Math.ceil(amt * 1.5); // 50% boost at low health
-          title = "Healing Potion";
-          desc = `Restore ${amt} HP`;
-          action = () => { player.hp = Math.min(player.maxHp, player.hp + amt); };
-        } else if (type === 'maxhp') {
-          const amt = (rarity.mult === 5 ? 20 : rarity.mult) * scale;
-          title = "Vitality Elixir";
-          desc = `+${amt} Max HP`;
-          action = () => { player.maxHp += amt; player.hp += amt; };
-        } else if (type === 'speed') {
-          const amt = (rarity.mult * 10) * scale;
-          title = "Boots of Swiftness";
-          desc = `+${amt} Speed`;
-          action = () => { player.speed += amt; };
-        } else if (type === 'damage') {
-          const amt = rarity.mult * scale;
-          title = "Whetstone";
-          desc = `+${amt} Damage`;
-          action = () => { player.dmg += amt; };
-        }
-
-        return { rarity, type, title, desc, action };
+      } else if (type === 'heal') {
+        let amt = Math.max(1, rarity.mult) * scale;
+        if (isLowHealth) amt = Math.ceil(amt * 1.5); // 50% boost at low health
+        title = "Healing Potion";
+        desc = `Restore ${amt} HP`;
+        action = () => { player.hp = Math.min(player.maxHp, player.hp + amt); };
+      } else if (type === 'maxhp') {
+        const amt = (rarity.mult === 5 ? 20 : rarity.mult) * scale;
+        title = "Vitality Elixir";
+        desc = `+${amt} Max HP`;
+        action = () => { player.maxHp += amt; player.hp += amt; };
+      } else if (type === 'speed') {
+        const amt = (rarity.mult * 10) * scale;
+        title = "Boots of Swiftness";
+        desc = `+${amt} Speed`;
+        action = () => { player.speed += amt; };
+      } else if (type === 'damage') {
+        const amt = rarity.mult * scale;
+        title = "Whetstone";
+        desc = `+${amt} Damage`;
+        action = () => { player.dmg += amt; };
       }
+
+      return { rarity, type, title, desc, action };
+    }
 
       function selectCard(selectedIndex) {
         if (cardChosen) return;
