@@ -233,7 +233,10 @@
         <div id="dev-tools" class="settings-row hidden">
           <label style="color:#ef4444;">DEVELOPER TOOLS</label>
           <button id="dev-infinite-coins-btn" style="margin:0; padding:10px; font-size:10px; width:100%;">Infinite Coins: OFF</button>
-          <button id="dev-skip-level-btn" style="margin:10px 0 0 0; padding:10px; font-size:10px; width:100%;">Skip Level</button>
+          <div style="display:flex; gap:10px; margin-top:10px;">
+            <input type="number" id="dev-level-input" placeholder="Level" style="width: 60px; padding: 5px; font-size: 10px; background: #000; color: #fff; border: 2px solid #4b5563;">
+            <button id="dev-set-level-btn" style="margin:0; padding:10px; font-size:10px; flex-grow:1;">Set Level</button>
+          </div>
         </div>
         
         <div style="text-align:center; margin-top: 30px; display:flex; justify-content:center; gap:10px;">
@@ -1968,15 +1971,45 @@ class Enemy extends Entity {
         }
       }
       else if (this.type.startsWith('boss')) {
-        this.vx = Math.cos(angle) * this.speed;
-        this.vy = Math.sin(angle) * this.speed;
+        const inPhase2 = this.hp < (this.maxHp * 0.5);
+        let currentSpeed = this.speed;
+        if (inPhase2) currentSpeed *= 1.5;
         
-        if(this.cooldown <= 0) {
-          for(let i=0; i<8; i++) {
-            const a = (Math.PI*2/8) * i;
-            entities.push(new Projectile(this.x+this.w/2-8, this.y+this.h/2-8, Math.cos(a), Math.sin(a), 'enemy', this.dmg, SPRITES.arrow));
+        this.vx = Math.cos(angle) * currentSpeed;
+        this.vy = Math.sin(angle) * currentSpeed;
+        
+        if (this.type === 'boss') {
+          if(this.cooldown <= 0) {
+            const cd = inPhase2 ? 1.5 : 2.5;
+            for(let i=0; i<8; i++) {
+              const a = (Math.PI*2/8) * i + (inPhase2 ? Math.random() : 0);
+              entities.push(new Projectile(this.x+this.w/2-8, this.y+this.h/2-8, Math.cos(a), Math.sin(a), 'enemy', this.dmg, SPRITES.arrow));
+            }
+            this.cooldown = cd;
           }
-          this.cooldown = 2.5;
+        } else if (this.type === 'boss2') {
+          if (!this.spiralAngle) this.spiralAngle = 0;
+          this.spiralAngle += (inPhase2 ? 0.3 : 0.15);
+          
+          if(this.cooldown <= 0) {
+            const cd = inPhase2 ? 0.2 : 0.4;
+            entities.push(new Projectile(this.x+this.w/2-8, this.y+this.h/2-8, Math.cos(this.spiralAngle), Math.sin(this.spiralAngle), 'enemy', this.dmg, SPRITES.magic));
+            entities.push(new Projectile(this.x+this.w/2-8, this.y+this.h/2-8, Math.cos(this.spiralAngle + Math.PI), Math.sin(this.spiralAngle + Math.PI), 'enemy', this.dmg, SPRITES.magic));
+            this.cooldown = cd;
+          }
+        } else if (this.type === 'boss3') {
+          if(this.cooldown <= 0) {
+            const cd = inPhase2 ? 2.0 : 3.0;
+            const burstAngle = angle;
+            for (let i = -2; i <= 2; i++) {
+               const a = burstAngle + (i * 0.2);
+               entities.push(new Projectile(this.x+this.w/2-8, this.y+this.h/2-8, Math.cos(a), Math.sin(a), 'enemy', this.dmg, SPRITES.magic));
+            }
+            if (inPhase2 && Math.random() < 0.5) {
+               entities.push(new Enemy(this.x + randInt(-30, 30), this.y + randInt(-30, 30), 'bat'));
+            }
+            this.cooldown = cd;
+          }
         }
         
         if(d < 50 && this.cooldown <= 1) {
@@ -2015,7 +2048,7 @@ class Enemy extends Entity {
     }
     ctx.restore();
     
-    if(this.hp < this.maxHp && this.type !== 'chest' && this.sprite !== SPRITES.chest) {
+    if(this.hp < this.maxHp && this.type !== 'chest' && this.sprite !== SPRITES.chest && !this.type.startsWith('boss')) {
       const sx = this.x - camera.x;
       const sy = this.y - camera.y - 8;
       ctx.fillStyle = 'red';
@@ -2273,183 +2306,233 @@ function generateMap() {
   entities = [];
   decorations = [];
   
-  const rooms = [];
-  const numRooms = randInt(5, 8);
-  let attempts = 0;
-  
-  while(rooms.length < numRooms && attempts < 100) {
-    attempts++;
-    let rw = randInt(5, 10);
-    let rh = randInt(5, 10);
+  if (level % 10 === 0) {
+    const arenaW = 16;
+    const arenaH = 16;
+    const cx = Math.floor(MAP_W/2);
+    const cy = Math.floor(MAP_H/2);
+    const rx = cx - Math.floor(arenaW/2);
+    const ry = cy - Math.floor(arenaH/2);
     
-    if (rooms.length === 0) {
-      rw = 8;
-      rh = 8;
-    }
-    
-    const rx = randInt(2, MAP_W - rw - 2);
-    const ry = randInt(2, MAP_H - rh - 2);
-    
-    let overlap = false;
-    for(const r of rooms) {
-      if(!(rx + rw + 1 < r.x || rx > r.x + r.w + 1 || ry + rh + 1 < r.y || ry > r.y + r.h + 1)) {
-        overlap = true; break;
-      }
-    }
-    if(overlap) continue;
-    
-    rooms.push({x: rx, y: ry, w: rw, h: rh});
-    for(let y=ry; y<ry+rh; y++) {
-      for(let x=rx; x<rx+rw; x++) {
+    for(let y=ry; y<ry+arenaH; y++) {
+      for(let x=rx; x<rx+arenaW; x++) {
         map[y][x] = 1;
+        if ((x === rx || x === rx + arenaW - 1) && y % 4 === 0) map[y][x] = 2;
+        if ((y === ry || y === ry + arenaH - 1) && x % 4 === 0) map[y][x] = 2;
       }
     }
     
-    if (rw >= 7 && rh >= 7 && Math.random() > 0.95) {
-       const cx = Math.floor(rx + rw/2);
-       const cy = Math.floor(ry + rh/2);
-       map[cy][cx] = 2; 
+    for (let y = ry + 2; y < ry + arenaH; y += 4) {
+      decorations.push({x: rx, y: y, type: 'torch'});
+      decorations.push({x: rx + arenaW - 1, y: y, type: 'torch'});
     }
-  }
-  
-  const isInsideRoom = (tx, ty) => {
-    for (const r of rooms) {
-      if (tx >= r.x && tx < r.x + r.w && ty >= r.y && ty < r.y + r.h) return true;
-    }
-    return false;
-  };
-
-  for(let i=1; i<rooms.length; i++) {
-    const r1 = rooms[i-1];
-    const r2 = rooms[i];
-    const c1x = Math.floor(r1.x + r1.w/2);
-    const c1y = Math.floor(r1.y + r1.h/2);
-    const c2x = Math.floor(r2.x + r2.w/2);
-    const c2y = Math.floor(r2.y + r2.h/2);
     
-    let x = c1x, y = c1y;
-    let stepX = 0;
-    while(x !== c2x) {
-      for(let dy=-1; dy<=1; dy++) {
-        if(map[y+dy] !== undefined && map[y+dy][x] !== undefined) map[y+dy][x] = 1;
-      }
-      if (!isInsideRoom(x, y)) {
-        stepX++;
-        if (stepX % 5 === 0) {
-          map[y][x] = 2; // Pillar
-        }
-      } else {
-        stepX = 0;
-      }
-      x += Math.sign(c2x - x);
-    }
-    let stepY = 0;
-    while(y !== c2y) {
-      for(let dx=-1; dx<=1; dx++) {
-        if(map[y] !== undefined && map[y][x+dx] !== undefined) map[y][x+dx] = 1;
-      }
-      if (!isInsideRoom(x, y)) {
-        stepY++;
-        if (stepY % 5 === 0) {
-          map[y][x] = 2; // Pillar
-        }
-      } else {
-        stepY = 0;
-      }
-      y += Math.sign(c2y - y);
-    }
-  }
-  
-  for(let y=1; y<MAP_H-1; y++) {
-    for(let x=1; x<MAP_W-1; x++) {
-      if(map[y][x] === 0 && map[y+1][x] === 1) {
-        if(Math.random() < 0.1) decorations.push({x, y, type: 'torch'});
-        else if (Math.random() < 0.1) decorations.push({x, y, type: 'banner'});
-      }
-      // Floor crack generation removed so it won't be confused with an exit
-    }
-  }
-  
-  const startRoom = rooms[0];
-  const px = (startRoom.x + startRoom.w/2) * TILE_SIZE;
-  const py = (startRoom.y + startRoom.h/2) * TILE_SIZE;
-  
-  if(!player) {
-    player = new Player(px, py);
-  } else {
-    player.x = px;
-    player.y = py;
-  }
-  entities.push(player);
-  
-  // Shopkeeper in start room
-  entities.push(new NPC((startRoom.x + startRoom.w/2)*TILE_SIZE - 12, (startRoom.y + 2)*TILE_SIZE, 'shopkeeper'));
-  
-  // Armorer in room 1
-  if(rooms.length > 1) {
-    const r1 = rooms[1];
-    entities.push(new NPC((r1.x + r1.w/2)*TILE_SIZE - 12, (r1.y + 2)*TILE_SIZE, 'armorer'));
-  } else {
-    entities.push(new NPC(px - 40, py + 40, 'armorer'));
-  }
-  
-  // Wizard in room 2
-  if(rooms.length > 2) {
-    const r2 = rooms[2];
-    entities.push(new NPC((r2.x + r2.w/2)*TILE_SIZE - 12, (r2.y + 2)*TILE_SIZE, 'wizard'));
-  } else if (rooms.length > 1) {
-    const r2 = rooms[1];
-    entities.push(new NPC((r2.x + r2.w/2)*TILE_SIZE - 12 + 40, (r2.y + 2)*TILE_SIZE, 'wizard'));
-  } else {
-    entities.push(new NPC(px + 40, py - 40, 'wizard'));
-  }
-  
-  for(let i=1; i<rooms.length; i++) {
-    const r = rooms[i];
+    const px = cx * TILE_SIZE;
+    const py = (ry + arenaH - 3) * TILE_SIZE;
     
-    if(level % 10 === 0 && i === rooms.length - 1) {
-      if (level === 10) {
-        entities.push(new Enemy((r.x + r.w/2)*TILE_SIZE, (r.y + r.h/2)*TILE_SIZE, 'boss'));
-      } else if (level === 20) {
-        entities.push(new Enemy((r.x + r.w/2)*TILE_SIZE, (r.y + r.h/2)*TILE_SIZE, 'boss2'));
-      } else if (level === 30) {
-        entities.push(new Enemy((r.x + r.w/2)*TILE_SIZE, (r.y + r.h/2)*TILE_SIZE, 'boss3'));
-      } else {
-        let bosses = ['boss', 'boss2', 'boss3'];
-        let numBossesToSpawn = Math.min(3, 1 + Math.floor((level - 30) / 10));
-        for (let b = 0; b < numBossesToSpawn; b++) {
-          let bType = bosses[b % bosses.length];
-          entities.push(new Enemy((r.x + randInt(1, r.w-2))*TILE_SIZE, (r.y + randInt(1, r.h-2))*TILE_SIZE, bType));
-        }
-      }
+    if(!player) {
+      player = new Player(px, py);
     } else {
-      const numEnemies = randInt(1, 1 + Math.floor(level/3));
-      for(let e=0; e<numEnemies; e++) {
-        let ex, ey, safe;
-        let attempts = 0;
-        do {
-           ex = (r.x + randInt(1, r.w-2)) * TILE_SIZE;
-           ey = (r.y + randInt(1, r.h-2)) * TILE_SIZE;
-           safe = true;
-           const cx = Math.floor(ex/TILE_SIZE);
-           const cy = Math.floor(ey/TILE_SIZE);
-           if (!map[cy] || map[cy][cx] === 0 || map[cy][cx] === 2 || map[cy][cx] === undefined) safe = false; 
-           attempts++;
-        } while(!safe && attempts < 10);
-        entities.push(new Enemy(ex, ey, getEnemyTypeForLevel(level)));
+      player.x = px;
+      player.y = py;
+      player.isGrappling = false;
+      player.activeGrapple = null;
+      player.grappleTarget = null;
+      player.vx = 0;
+      player.vy = 0;
+    }
+    entities.push(player);
+    
+    let bossType = 'boss';
+    if (level === 20) bossType = 'boss2';
+    else if (level >= 30) bossType = 'boss3';
+    
+    entities.push(new Enemy(cx * TILE_SIZE, (ry + 4) * TILE_SIZE, bossType));
+  } else {
+
+    const rooms = [];
+    const numRooms = randInt(5, 8);
+    let attempts = 0;
+    
+    while(rooms.length < numRooms && attempts < 100) {
+      attempts++;
+      let rw = randInt(5, 10);
+      let rh = randInt(5, 10);
+      
+      if (rooms.length === 0) {
+        rw = 8;
+        rh = 8;
+      }
+      
+      const rx = randInt(2, MAP_W - rw - 2);
+      const ry = randInt(2, MAP_H - rh - 2);
+      
+      let overlap = false;
+      for(const r of rooms) {
+        if(!(rx + rw + 1 < r.x || rx > r.x + r.w + 1 || ry + rh + 1 < r.y || ry > r.y + r.h + 1)) {
+          overlap = true; break;
+        }
+      }
+      if(overlap) continue;
+      
+      rooms.push({x: rx, y: ry, w: rw, h: rh});
+      for(let y=ry; y<ry+rh; y++) {
+        for(let x=rx; x<rx+rw; x++) {
+          map[y][x] = 1;
+        }
+      }
+      
+      if (rw >= 7 && rh >= 7 && Math.random() > 0.95) {
+         const cx = Math.floor(rx + rw/2);
+         const cy = Math.floor(ry + rh/2);
+         map[cy][cx] = 2; 
       }
     }
     
-    if(i === rooms.length - 1 && level % 10 !== 0) {
-      const tx = Math.floor(r.x + 2);
-      const ty = Math.floor(r.y + 2);
-      const sx = tx * TILE_SIZE;
-      const sy = ty * TILE_SIZE;
-      entities.push(new Item(sx, sy, 'portal'));
-      for (let dy = -1; dy <= 1; dy++) {
-        for (let dx = -1; dx <= 1; dx++) {
-          if (map[ty + dy] && map[ty + dy][tx + dx] === 1) {
-            map[ty + dy][tx + dx] = 4;
+    const isInsideRoom = (tx, ty) => {
+      for (const r of rooms) {
+        if (tx >= r.x && tx < r.x + r.w && ty >= r.y && ty < r.y + r.h) return true;
+      }
+      return false;
+    };
+  
+    for(let i=1; i<rooms.length; i++) {
+      const r1 = rooms[i-1];
+      const r2 = rooms[i];
+      const c1x = Math.floor(r1.x + r1.w/2);
+      const c1y = Math.floor(r1.y + r1.h/2);
+      const c2x = Math.floor(r2.x + r2.w/2);
+      const c2y = Math.floor(r2.y + r2.h/2);
+      
+      let x = c1x, y = c1y;
+      let stepX = 0;
+      while(x !== c2x) {
+        for(let dy=-1; dy<=1; dy++) {
+          if(map[y+dy] !== undefined && map[y+dy][x] !== undefined) map[y+dy][x] = 1;
+        }
+        if (!isInsideRoom(x, y)) {
+          stepX++;
+          if (stepX % 5 === 0) {
+            map[y][x] = 2; // Pillar
+          }
+        } else {
+          stepX = 0;
+        }
+        x += Math.sign(c2x - x);
+      }
+      let stepY = 0;
+      while(y !== c2y) {
+        for(let dx=-1; dx<=1; dx++) {
+          if(map[y] !== undefined && map[y][x+dx] !== undefined) map[y][x+dx] = 1;
+        }
+        if (!isInsideRoom(x, y)) {
+          stepY++;
+          if (stepY % 5 === 0) {
+            map[y][x] = 2; // Pillar
+          }
+        } else {
+          stepY = 0;
+        }
+        y += Math.sign(c2y - y);
+      }
+    }
+    
+    for(let y=1; y<MAP_H-1; y++) {
+      for(let x=1; x<MAP_W-1; x++) {
+        if(map[y][x] === 0 && map[y+1][x] === 1) {
+          if(Math.random() < 0.1) decorations.push({x, y, type: 'torch'});
+          else if (Math.random() < 0.1) decorations.push({x, y, type: 'banner'});
+        }
+        // Floor crack generation removed so it won't be confused with an exit
+      }
+    }
+    
+    const startRoom = rooms[0];
+    const px = (startRoom.x + startRoom.w/2) * TILE_SIZE;
+    const py = (startRoom.y + startRoom.h/2) * TILE_SIZE;
+    
+    if(!player) {
+      player = new Player(px, py);
+    } else {
+      player.x = px;
+      player.y = py;
+      player.isGrappling = false;
+      player.activeGrapple = null;
+      player.grappleTarget = null;
+      player.vx = 0;
+      player.vy = 0;
+    }
+    entities.push(player);
+    
+    // Shopkeeper in start room
+    entities.push(new NPC((startRoom.x + 1)*TILE_SIZE, (startRoom.y + 1)*TILE_SIZE, 'shopkeeper'));
+    
+    // Armorer in room 1
+    if(rooms.length > 1) {
+      const r1 = rooms[1];
+      entities.push(new NPC((r1.x + r1.w - 2)*TILE_SIZE, (r1.y + 1)*TILE_SIZE, 'armorer'));
+    } else {
+      entities.push(new NPC(px - 40, py + 40, 'armorer'));
+    }
+    
+    // Wizard in room 2
+    if(rooms.length > 2) {
+      const r2 = rooms[2];
+      entities.push(new NPC((r2.x + 1)*TILE_SIZE, (r2.y + r2.h - 2)*TILE_SIZE, 'wizard'));
+    } else if (rooms.length > 1) {
+      const r2 = rooms[1];
+      entities.push(new NPC((r2.x + 1)*TILE_SIZE, (r2.y + r2.h - 2)*TILE_SIZE, 'wizard'));
+    } else {
+      entities.push(new NPC(px + 40, py - 40, 'wizard'));
+    }
+    
+    for(let i=1; i<rooms.length; i++) {
+      const r = rooms[i];
+      
+      if(level % 10 === 0 && i === rooms.length - 1) {
+        if (level === 10) {
+          entities.push(new Enemy((r.x + r.w/2)*TILE_SIZE, (r.y + r.h/2)*TILE_SIZE, 'boss'));
+        } else if (level === 20) {
+          entities.push(new Enemy((r.x + r.w/2)*TILE_SIZE, (r.y + r.h/2)*TILE_SIZE, 'boss2'));
+        } else if (level === 30) {
+          entities.push(new Enemy((r.x + r.w/2)*TILE_SIZE, (r.y + r.h/2)*TILE_SIZE, 'boss3'));
+        } else {
+          let bosses = ['boss', 'boss2', 'boss3'];
+          let numBossesToSpawn = Math.min(3, 1 + Math.floor((level - 30) / 10));
+          for (let b = 0; b < numBossesToSpawn; b++) {
+            let bType = bosses[b % bosses.length];
+            entities.push(new Enemy((r.x + randInt(1, r.w-2))*TILE_SIZE, (r.y + randInt(1, r.h-2))*TILE_SIZE, bType));
+          }
+        }
+      } else {
+        const numEnemies = randInt(1, 1 + Math.floor(level/3));
+        for(let e=0; e<numEnemies; e++) {
+          let ex, ey, safe;
+          let attempts = 0;
+          do {
+             ex = (r.x + randInt(1, r.w-2)) * TILE_SIZE;
+             ey = (r.y + randInt(1, r.h-2)) * TILE_SIZE;
+             safe = true;
+             const cx = Math.floor(ex/TILE_SIZE);
+             const cy = Math.floor(ey/TILE_SIZE);
+             if (!map[cy] || map[cy][cx] === 0 || map[cy][cx] === 2 || map[cy][cx] === undefined) safe = false; 
+             attempts++;
+          } while(!safe && attempts < 10);
+          entities.push(new Enemy(ex, ey, getEnemyTypeForLevel(level)));
+        }
+      }
+      
+      if(i === rooms.length - 1 && level % 10 !== 0) {
+        const tx = Math.floor(r.x + 2);
+        const ty = Math.floor(r.y + 2);
+        const sx = tx * TILE_SIZE;
+        const sy = ty * TILE_SIZE;
+        entities.push(new Item(sx, sy, 'portal'));
+        for (let dy = -1; dy <= 1; dy++) {
+          for (let dx = -1; dx <= 1; dx++) {
+            if (map[ty + dy] && map[ty + dy][tx + dx] === 1) {
+              map[ty + dy][tx + dx] = 4;
+            }
           }
         }
       }
@@ -2546,6 +2629,31 @@ function loop(timestamp) {
       
       entities.sort((a,b) => (a.y+a.h) - (b.y+b.h));
       for(const e of entities) e.draw(ctx);
+      
+      if (level % 10 === 0) {
+        const boss = entities.find(e => e.type && e.type.startsWith('boss') && !e.dead);
+        if (boss) {
+          const barW = 400;
+          const barH = 20;
+          const bx = canvas.width/2 - barW/2;
+          const by = 50;
+          
+          ctx.fillStyle = 'rgba(0,0,0,0.8)';
+          ctx.fillRect(bx - 4, by - 4, barW + 8, barH + 8);
+          
+          ctx.fillStyle = '#ef4444';
+          ctx.fillRect(bx, by, barW, barH);
+          
+          ctx.fillStyle = '#22c55e';
+          ctx.fillRect(bx, by, barW * (boss.hp / boss.maxHp), barH);
+          
+          ctx.fillStyle = '#fff';
+          ctx.font = '12px "Press Start 2P"';
+          ctx.textAlign = 'center';
+          ctx.fillText("BOSS", canvas.width/2, by + 14);
+          ctx.textAlign = 'left';
+        }
+      }
     }
   }
   
@@ -2655,11 +2763,15 @@ function init() {
     updateHUD();
   };
 
-  document.getElementById('dev-skip-level-btn').onclick = () => {
+  document.getElementById('dev-set-level-btn').onclick = () => {
     if (STATE === 'PLAYING') {
-      floorTransitionPending = true;
-      document.getElementById('settings-overlay').classList.add('hidden');
-      isPaused = false;
+      const inputVal = parseInt(document.getElementById('dev-level-input').value);
+      if (!isNaN(inputVal) && inputVal > 0) {
+        level = inputVal - 1;
+        floorTransitionPending = true;
+        document.getElementById('settings-overlay').classList.add('hidden');
+        isPaused = false;
+      }
     }
   };
 
