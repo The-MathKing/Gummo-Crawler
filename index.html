@@ -376,28 +376,9 @@
         <h1>30 Floors Down</h1>
 
         <div id="save-slots"
-          style="margin: 30px auto 0; display: flex; flex-direction: column; gap: 15px; width: 400px; max-width: 100%;">
-          <div style="display:flex; gap:10px; align-items:center;">
-            <button class="slot-btn" data-slot="1" id="slot-1-btn" style="flex-grow:1;">Slot 1 - Empty</button>
-            <button class="dev-slot-mod hidden" data-mod="-1" data-slot="1"
-              style="padding: 10px; width:40px; border-color:#facc15; color:#facc15;">-</button>
-            <button class="dev-slot-mod hidden" data-mod="1" data-slot="1"
-              style="padding: 10px; width:40px; border-color:#facc15; color:#facc15;">+</button>
-          </div>
-          <div style="display:flex; gap:10px; align-items:center;">
-            <button class="slot-btn" data-slot="2" id="slot-2-btn" style="flex-grow:1;">Slot 2 - Empty</button>
-            <button class="dev-slot-mod hidden" data-mod="-1" data-slot="2"
-              style="padding: 10px; width:40px; border-color:#facc15; color:#facc15;">-</button>
-            <button class="dev-slot-mod hidden" data-mod="1" data-slot="2"
-              style="padding: 10px; width:40px; border-color:#facc15; color:#facc15;">+</button>
-          </div>
-          <div style="display:flex; gap:10px; align-items:center;">
-            <button class="slot-btn" data-slot="3" id="slot-3-btn" style="flex-grow:1;">Slot 3 - Empty</button>
-            <button class="dev-slot-mod hidden" data-mod="-1" data-slot="3"
-              style="padding: 10px; width:40px; border-color:#facc15; color:#facc15;">-</button>
-            <button class="dev-slot-mod hidden" data-mod="1" data-slot="3"
-              style="padding: 10px; width:40px; border-color:#facc15; color:#facc15;">+</button>
-          </div>
+          style="margin: 30px auto 0; display: flex; flex-direction: column; gap: 15px; width: 400px; max-width: 100%; align-items: center;">
+          <button id="play-game-btn" style="padding: 15px 30px; font-size: 16px; border-color: #facc15; color: #facc15; background: #222; cursor: pointer; font-family: 'Press Start 2P', monospace;">PLAY GAME</button>
+          <div id="highest-floor-display" style="color: #fff; font-size: 14px; margin-top: 10px;">Highest Floor Reached: 1</div>
         </div>
 
         <div style="margin-top: 30px; display: flex; gap: 10px; justify-content: center;">
@@ -661,17 +642,16 @@
     });
 
     // --- SAVE SYSTEM ---
-    let currentSlot = 1;
 
-    function getSaveData(slot) {
-      const data = localStorage.getItem('dungeonCrawlerSave' + slot);
+    function getSaveData() {
+      const data = localStorage.getItem('dungeonCrawlerSave');
       return data ? JSON.parse(data) : null;
     }
 
     function saveGame(resetFloor = false) {
       if (!player) return;
-      const currentHighest = getSaveData(currentSlot)?.highestFloor || 1;
-      const newFloor = resetFloor ? 1 : Math.max(level, currentHighest);
+      const currentHighest = getSaveData()?.highestFloor || 1;
+      const newHighest = Math.max(level, currentHighest);
 
       const data = {
         maxHp: player.maxHp,
@@ -679,33 +659,22 @@
         speed: player.speed,
         gold: player.gold,
         encounteredEnemies: player.encounteredEnemies,
-        highestFloor: newFloor,
+        highestFloor: newHighest,
+        currentFloor: resetFloor ? 1 : level,
         unlockedWeapons: player.unlockedWeapons,
         currentWeapon: player.currentWeapon,
         armor: player.armor,
         unlockedArmors: player.unlockedArmors,
         hiredAlliesCount: player.hiredAlliesCount || 0
       };
-      localStorage.setItem('dungeonCrawlerSave' + currentSlot, JSON.stringify(data));
-      updateSlotLabels();
+      localStorage.setItem('dungeonCrawlerSave', JSON.stringify(data));
     }
 
-    function updateSlotLabels() {
-      for (let i = 1; i <= 3; i++) {
-        const d = getSaveData(i);
-        const btn = document.getElementById('slot-' + i + '-btn');
-        if (d) {
-          btn.innerText = `Slot ${i} - Floor ${d.highestFloor} | Gold ${d.gold}`;
-        } else {
-          btn.innerText = `Slot ${i} - Empty`;
-        }
-      }
-    }
-
-    function eraseSave(slot) {
-      localStorage.removeItem('dungeonCrawlerSave' + slot);
-      updateSlotLabels();
-      showNotification("Slot " + slot + " Erased");
+    function eraseSave() {
+      const currentHighest = getSaveData()?.highestFloor || 1;
+      localStorage.setItem('dungeonCrawlerSave', JSON.stringify({ highestFloor: currentHighest }));
+      showNotification("Progress Erased");
+      init();
     }
 
     // --- ASSET GENERATION ---
@@ -3500,33 +3469,15 @@
 
     // --- UI & MENUS ---
     function init() {
-      updateSlotLabels();
+      const d = getSaveData();
+      const highest = d ? d.highestFloor : 1;
+      const display = document.getElementById('highest-floor-display');
+      if (display) display.innerText = `Highest Floor Reached: ${highest}`;
 
-      document.querySelectorAll('.slot-btn').forEach(btn => {
-        btn.onclick = () => {
-          currentSlot = parseInt(btn.getAttribute('data-slot'));
-          document.getElementById('menu-overlay').classList.add('hidden');
-          startGame(true);
-        };
-      });
-
-      document.querySelectorAll('.dev-slot-mod').forEach(btn => {
-        btn.onclick = () => {
-          const slot = parseInt(btn.getAttribute('data-slot'));
-          const mod = parseInt(btn.getAttribute('data-mod'));
-          let d = getSaveData(slot);
-          if (!d) {
-            d = {
-              highestFloor: 1, gold: 0, dungeonCoins: 0, hp: 3, maxHp: 3, dmg: 1,
-              speed: 150, encounteredEnemies: [], unlockedWeapons: ['blaster'],
-              currentWeapon: 'blaster', unlockedArmor: ['none'], currentArmor: 'none'
-            };
-          }
-          d.highestFloor = Math.max(1, d.highestFloor + mod);
-          localStorage.setItem('dungeonCrawlerSave' + slot, JSON.stringify(d));
-          updateSlotLabels();
-        };
-      });
+      document.getElementById('play-game-btn').onclick = () => {
+        document.getElementById('menu-overlay').classList.add('hidden');
+        startGame(true);
+      };
 
       document.getElementById('open-settings-btn').onclick = () => {
         document.getElementById('settings-overlay').classList.remove('hidden');
@@ -3553,7 +3504,7 @@
       };
 
       document.getElementById('delete-save-btn').onclick = () => {
-        eraseSave(currentSlot);
+        eraseSave();
       };
 
       document.getElementById('sfx-slider').oninput = (e) => {
@@ -3773,9 +3724,9 @@
     }
 
     function startGame(loadFromSave) {
-      const saved = loadFromSave ? getSaveData(currentSlot) : null;
+      const saved = loadFromSave ? getSaveData() : null;
 
-      level = saved ? (saved.highestFloor || 1) : 1;
+      level = (saved && saved.currentFloor) ? saved.currentFloor : 1;
       enemiesDefeated = 0;
       bossDefeated = false;
       merchantUsedThisLevel = false;
@@ -3793,7 +3744,7 @@
 
 
       player = new Player(0, 0);
-      if (saved) {
+      if (saved && saved.maxHp !== undefined) {
         player.maxHp = saved.maxHp;
         player.hp = saved.maxHp;
         player.dmg = saved.dmg;
@@ -3828,6 +3779,10 @@
       document.getElementById('codex-btn').classList.add('hidden');
       document.getElementById('stats-text').innerText = `Floors Cleared: ${level - 1}\nEnemies Defeated: ${enemiesDefeated}\nRun Gold Collected: ${runGoldCollected}`;
       document.getElementById('gameover-overlay').classList.remove('hidden');
+
+      // Roguelike: erase current run progress but keep high score
+      const currentHighest = getSaveData()?.highestFloor || 1;
+      localStorage.setItem('dungeonCrawlerSave', JSON.stringify({ highestFloor: Math.max(level, currentHighest) }));
     }
 
     function victory() {
