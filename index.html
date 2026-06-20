@@ -4072,6 +4072,19 @@
             val: mod.val
           });
         }
+
+        let minCost = Math.min(...wizardCards.map(c => c.cost));
+        if (player.gold < minCost) {
+          wizardCards[0] = {
+            id: 'sword',
+            title: 'Rusty Blade',
+            desc: '-50% Spd, -50% Max HP, +1 Dmg',
+            cost: player.gold,
+            color: '#888888',
+            stat: 'cursed_weapon',
+            val: 0
+          };
+        }
       }
 
       function generateArmorerCards() {
@@ -4104,6 +4117,19 @@
             stat: mod.stat,
             val: mod.val
           });
+        }
+
+        let minCost = Math.min(...armorerCards.map(c => c.cost));
+        if (player.gold < minCost) {
+          armorerCards[0] = {
+            id: 'none',
+            title: 'Cardboard Box',
+            desc: '0% Dmg Red.<br/>-5 Max HP, -50 Spd',
+            cost: player.gold,
+            color: '#888888',
+            stat: 'cursed_armor',
+            val: 0
+          };
         }
       }
 
@@ -4172,6 +4198,11 @@
         else if (c.stat === 'both') {
           player.speed += c.val * 10;
           player.dmg += c.val;
+        } else if (c.stat === 'cursed_weapon') {
+          player.speed = Math.max(50, Math.floor(player.speed / 2));
+          player.maxHp = Math.max(1, Math.ceil(player.maxHp / 2));
+          if (player.hp > player.maxHp) player.hp = player.maxHp;
+          player.dmg += 1;
         }
 
         document.getElementById('wizard-subtitle').innerText = "A wise choice!";
@@ -4259,6 +4290,11 @@
           player.hp = player.maxHp;
         }
         else if (c.stat === 'dmg') player.dmg += c.val;
+        else if (c.stat === 'cursed_armor') {
+          player.maxHp = Math.max(1, player.maxHp - 5);
+          if (player.hp > player.maxHp) player.hp = player.maxHp;
+          player.speed = Math.max(50, player.speed - 50);
+        }
 
         document.getElementById('armorer-subtitle').innerText = "A sturdy piece!";
 
