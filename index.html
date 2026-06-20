@@ -301,6 +301,10 @@
           <button class="shop-btn weapon-shop-btn" data-weapon="staff" id="btn-w-staff">BUY</button>
         </div>
         <div class="shop-item">
+          <span>El Clover (Cost: 25 Coins)</span>
+          <button class="shop-btn weapon-shop-btn" data-weapon="el_clover" id="btn-w-el_clover">BUY</button>
+        </div>
+        <div class="shop-item">
           <span>Rusty Sword (Cost: 5 Coins)</span>
           <button class="shop-btn weapon-shop-btn" data-weapon="sword" id="btn-w-sword">BUY</button>
         </div>
@@ -1083,23 +1087,59 @@ const SPRITES = {
     '................',
     '................'
   ]),
-  stairs: createSprite([
+  el_clover: createSprite([
+    '................',
+    '......bbbb......',
+    '.....bGwwGb.....',
+    '....bwwGGwwb....',
+    '....bwGbbGwb....',
+    '....bGGwwGGb....',
+    '....bwGbbGwb....',
+    '....bwwGGwwb....',
+    '.....bGwwGb.....',
+    '......bbbb......',
+    '.......bb.......',
+    '.......bb.......',
+    '.......bb.......',
+    '.......bb.......',
+    '................',
+    '................'
+  ]),
+  clover: createSprite([
     '................',
     '................',
-    '..........gd....',
-    '..........gd....',
-    '......gd..gd....',
-    '......gd..gd....',
-    '..gd..gd..gd....',
-    '..gd..gd..gd....',
-    '..gd..gd..gd....',
-    '..gd..gd..gd....',
-    '..gd..gd..gd....',
-    '..gd..gd..gd....',
+    '................',
+    '.......bb.......',
+    '......bGGb......',
+    '.....bGwwGb.....',
+    '.....bGwwGb.....',
+    '......bGGb......',
+    '.......bb.......',
+    '................',
+    '................',
+    '................',
     '................',
     '................',
     '................',
     '................'
+  ]),
+  portal: createSprite([
+    '................',
+    '......bbbb......',
+    '....bbPPddbb....',
+    '...bPddPPddPb...',
+    '..bPddPPPPddPb..',
+    '..bdPPPPPPPPdb..',
+    '.bdPPPbbbbPPdb.',
+    '.bdPPbbddbbPPdb.',
+    '.bPPbbddddbbPPb.',
+    '.bPPbddddddbPPb.',
+    '.bPPbddddddbPPb.',
+    '..bdPPddddPPdb..',
+    '..bdPPbbbbPPdb..',
+    '...bdPPPPPPdb...',
+    '....bbddddbb....',
+    '......bbbb......'
   ]),
   shopkeeper: createSprite([
     '......bbbb......',
@@ -1216,20 +1256,20 @@ SPRITES.floor = createSprite([
 
 SPRITES.floor_special = createSprite([
   'bbbbbbbbbbbbbbbb',
-  'bllllllllllllllb',
-  'blgggggggggggglb',
-  'blgddddddddddglb',
-  'blgdbbbbbbbbdglb',
-  'blgdbbbbbbbbdglb',
-  'blgdbbbbbbbbdglb',
-  'blgdbbbbbbbbdglb',
-  'blgdbbbbbbbbdglb',
-  'blgdbbbbbbbbdglb',
-  'blgdbbbbbbbbdglb',
-  'blgdbbbbbbbbdglb',
-  'blgddddddddddglb',
-  'blgggggggggggglb',
-  'bllllllllllllllb',
+  'bPPPPPPPPPPPPPPb',
+  'bPddddddddddddPb',
+  'bPdPPPPPPPPPPdPb',
+  'bPdPddddddddPdPb',
+  'bPdPdPPPPPPdPdPb',
+  'bPdPdPddddPdPdPb',
+  'bPdPdPdPPdPdPdPb',
+  'bPdPdPdPPdPdPdPb',
+  'bPdPdPddddPdPdPb',
+  'bPdPdPPPPPPdPdPb',
+  'bPdPddddddddPdPb',
+  'bPdPPPPPPPPPPdPb',
+  'bPddddddddddddPb',
+  'bPPPPPPPPPPPPPPb',
   'bbbbbbbbbbbbbbbb'
 ]);
 
@@ -1274,6 +1314,7 @@ SPRITES.counter = createSprite([
 const WEAPONS = {
   blaster: { name: 'Blaster', type: 'ranged', dmgMul: 1, fireRate: 0.4, cost: 0, sprite: SPRITES.blaster, projSprite: SPRITES.projectile },
   staff: { name: 'Magic Staff', type: 'ranged', dmgMul: 2, fireRate: 0.6, cost: 15, sprite: SPRITES.staff, projSprite: SPRITES.magic },
+  el_clover: { name: 'El Clover', type: 'ranged', dmgMul: 1.5, fireRate: 0.5, cost: 25, sprite: SPRITES.el_clover, projSprite: SPRITES.clover, bounces: 3 },
   sword: { name: 'Rusty Sword', type: 'melee', dmgMul: 2.5, fireRate: 0.3, cost: 5, sprite: SPRITES.sword, range: 50 },
   claymore: { name: 'Claymore', type: 'melee', dmgMul: 5, fireRate: 0.5, cost: 50, sprite: SPRITES.sword, range: 75 }
 };
@@ -1344,7 +1385,7 @@ let isInfiniteCoinsEnabled = false;
 
 window.addEventListener('wheel', e => {
   if(STATE === 'PLAYING' && player) {
-    const order = ['blaster', 'staff', 'sword', 'claymore'];
+    const order = ['blaster', 'staff', 'el_clover', 'sword', 'claymore'];
     const unlocked = order.filter(w => player.unlockedWeapons.includes(w));
     if(unlocked.length > 1) {
       let idx = unlocked.indexOf(player.currentWeapon);
@@ -1358,7 +1399,7 @@ window.addEventListener('wheel', e => {
 window.addEventListener('contextmenu', e => {
   if(STATE === 'PLAYING' && player) {
     e.preventDefault(); // Prevent default context menu
-    const order = ['blaster', 'staff', 'sword', 'claymore'];
+    const order = ['blaster', 'staff', 'el_clover', 'sword', 'claymore'];
     const unlocked = order.filter(w => player.unlockedWeapons.includes(w));
     if(unlocked.length > 1) {
       let idx = unlocked.indexOf(player.currentWeapon);
@@ -1375,7 +1416,7 @@ window.addEventListener('keydown', e => {
     document.getElementById('pause-overlay').classList.toggle('hidden', !isPaused);
   }
   if(STATE === 'PLAYING') {
-    const order = ['blaster', 'staff', 'sword', 'claymore'];
+    const order = ['blaster', 'staff', 'el_clover', 'sword', 'claymore'];
     const unlocked = order.filter(w => player && player.unlockedWeapons.includes(w));
     if(e.key >= '1' && e.key <= '4') {
       const index = parseInt(e.key) - 1;
@@ -1649,7 +1690,7 @@ class Player extends Entity {
       const projX = cx + Math.cos(angle) * 10 - 10;
       const projY = cy + Math.sin(angle) * 10 - 10;
       
-      const p = new Projectile(projX, projY, Math.cos(angle), Math.sin(angle), 'player', this.dmg * wData.dmgMul, wData.projSprite);
+      const p = new Projectile(projX, projY, Math.cos(angle), Math.sin(angle), 'player', this.dmg * wData.dmgMul, wData.projSprite, wData.bounces);
       p.w = 20;
       p.h = 20;
       entities.push(p);
@@ -1916,7 +1957,7 @@ class Enemy extends Entity {
           const ty = Math.floor(cy / TILE_SIZE);
           const sx = tx * TILE_SIZE;
           const sy = ty * TILE_SIZE;
-          entities.push(new Item(sx, sy, 'stairs'));
+          entities.push(new Item(sx, sy, 'portal'));
           for(let dy=-1; dy<=1; dy++) {
             for(let dx=-1; dx<=1; dx++) {
               if(map[ty+dy] && map[ty+dy][tx+dx] === 1) {
@@ -1932,7 +1973,7 @@ class Enemy extends Entity {
 }
 
 class Projectile extends Entity {
-  constructor(x, y, dx, dy, owner, dmg, sprite) {
+  constructor(x, y, dx, dy, owner, dmg, sprite, bounces = 0) {
     super(x, y, 16, 16, sprite);
     this.dx = dx;
     this.dy = dy;
@@ -1940,6 +1981,7 @@ class Projectile extends Entity {
     this.owner = owner;
     this.dmg = dmg;
     this.life = 2; 
+    this.bounces = bounces;
   }
   update(dt) {
     this.x += this.dx * this.speed * dt;
@@ -1950,7 +1992,26 @@ class Projectile extends Entity {
     const tx = Math.floor(this.x / TILE_SIZE);
     const ty = Math.floor(this.y / TILE_SIZE);
     if(!map[ty] || map[ty][tx] === 0 || map[ty][tx] === 2) {
-      this.die();
+      if (this.bounces > 0) {
+        this.bounces--;
+        const prevTx = Math.floor((this.x - this.dx * this.speed * dt) / TILE_SIZE);
+        const prevTy = Math.floor((this.y - this.dy * this.speed * dt) / TILE_SIZE);
+        
+        let bounceX = false;
+        let bounceY = false;
+        
+        if (!map[prevTy] || map[prevTy][tx] === 0 || map[prevTy][tx] === 2) bounceX = true;
+        if (!map[ty] || map[ty][prevTx] === 0 || map[ty][prevTx] === 2) bounceY = true;
+        if (!bounceX && !bounceY) { bounceX = true; bounceY = true; }
+        
+        if (bounceX) this.dx *= -1;
+        if (bounceY) this.dy *= -1;
+        
+        this.x += this.dx * this.speed * dt * 1.5;
+        this.y += this.dy * this.speed * dt * 1.5;
+      } else {
+        this.die();
+      }
     }
     
     for(const e of entities) {
@@ -1967,7 +2028,7 @@ class Projectile extends Entity {
 
 class Item extends Entity {
   constructor(x, y, type) {
-    super(x, y, type === 'gold' ? 16 : 32, type === 'gold' ? 16 : 32, type === 'gold' ? SPRITES.gold : SPRITES.stairs); 
+    super(x, y, type === 'gold' ? 16 : 32, type === 'gold' ? 16 : 32, type === 'gold' ? SPRITES.gold : SPRITES.portal); 
     this.type = type;
     this.pickupDelay = 0.5; 
   }
@@ -1980,7 +2041,7 @@ class Item extends Entity {
         player.gold += 1;
         runGoldCollected += 1;
         saveGame();
-      } else if (this.type === 'stairs') {
+      } else if (this.type === 'portal') {
         saveGame();
         floorTransitionPending = true;
       }
@@ -2097,7 +2158,7 @@ function generateMap() {
       }
     }
     
-    if (rw >= 7 && rh >= 7 && Math.random() > 0.5) {
+    if (rw >= 7 && rh >= 7 && Math.random() > 0.95) {
        const cx = Math.floor(rx + rw/2);
        const cy = Math.floor(ry + rh/2);
        map[cy][cx] = 2; 
@@ -2237,7 +2298,7 @@ function generateMap() {
       const ty = Math.floor(r.y + r.h/2);
       const sx = tx * TILE_SIZE;
       const sy = ty * TILE_SIZE;
-      entities.push(new Item(sx, sy, 'stairs'));
+      entities.push(new Item(sx, sy, 'portal'));
       for (let dy = -1; dy <= 1; dy++) {
         for (let dx = -1; dx <= 1; dx++) {
           if (map[ty + dy] && map[ty + dy][tx + dx] === 1) {
