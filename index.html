@@ -312,6 +312,10 @@
           <span>Claymore (Cost: 50 Coins)</span>
           <button class="shop-btn weapon-shop-btn" data-weapon="claymore" id="btn-w-claymore">BUY</button>
         </div>
+        <div class="shop-item">
+          <span>AA Grappler (Cost: 10 Shards)</span>
+          <button class="shop-btn weapon-shop-btn" data-weapon="aa_grappler" id="btn-w-aa_grappler">BUY</button>
+        </div>
         <div style="text-align:center; margin-top: 30px;">
           <button id="close-weapon-shop-btn">LEAVE ARMORY</button>
         </div>
@@ -1309,14 +1313,52 @@ SPRITES.counter = createSprite([
   '................',
   '................',
   '................'
-]);
+]),
+aa_grappler: createSprite([
+  '................',
+  '......bbbb......',
+  '.....bddddb.....',
+  '....bdeeeedb....',
+  '....bddddddb....',
+  '....b......b....',
+  '....b......b....',
+  '....bbbbbbbb....',
+  '.....b....b.....',
+  '.....b....b.....',
+  '.....b....b.....',
+  '.....b....b.....',
+  '.....b....b.....',
+  '.....bbbbbb.....',
+  '................',
+  '................'
+]),
+connector: createSprite([
+  '................',
+  '.......bb.......',
+  '......bwwb......',
+  '.....bwwwwb.....',
+  '....bwwbbwwb....',
+  '...bwwb..bwwb...',
+  '...bwwb..bwwb...',
+  '...bwwb..bwwb...',
+  '....bwwbbwwb....',
+  '.....bwwwwb.....',
+  '......bwwb......',
+  '.......bb.......',
+  '.......bb.......',
+  '.......bb.......',
+  '................',
+  '................'
+])
+});
 
 const WEAPONS = {
   blaster: { name: 'Blaster', type: 'ranged', dmgMul: 1, fireRate: 0.4, cost: 0, sprite: SPRITES.blaster, projSprite: SPRITES.projectile },
   staff: { name: 'Magic Staff', type: 'ranged', dmgMul: 2, fireRate: 0.6, cost: 15, sprite: SPRITES.staff, projSprite: SPRITES.magic },
   el_clover: { name: 'El Clover', type: 'ranged', dmgMul: 1.5, fireRate: 0.5, cost: 25, sprite: SPRITES.el_clover, projSprite: SPRITES.clover, bounces: 3 },
   sword: { name: 'Rusty Sword', type: 'melee', dmgMul: 2.5, fireRate: 0.3, cost: 5, sprite: SPRITES.sword, range: 50 },
-  claymore: { name: 'Claymore', type: 'melee', dmgMul: 5, fireRate: 0.5, cost: 50, sprite: SPRITES.sword, range: 75 }
+  claymore: { name: 'Claymore', type: 'melee', dmgMul: 5, fireRate: 0.5, cost: 50, sprite: SPRITES.sword, range: 75 },
+  aa_grappler: { name: 'AA Grappler', type: 'grapple', fireRate: 0.5, cost: 10, sprite: SPRITES.aa_grappler, projSprite: SPRITES.connector }
 };
 
 class SlashEffect {
@@ -1385,7 +1427,7 @@ let isInfiniteCoinsEnabled = false;
 
 window.addEventListener('wheel', e => {
   if(STATE === 'PLAYING' && player) {
-    const order = ['blaster', 'staff', 'el_clover', 'sword', 'claymore'];
+    const order = ['blaster', 'staff', 'el_clover', 'sword', 'claymore', 'aa_grappler'];
     const unlocked = order.filter(w => player.unlockedWeapons.includes(w));
     if(unlocked.length > 1) {
       let idx = unlocked.indexOf(player.currentWeapon);
@@ -1399,7 +1441,7 @@ window.addEventListener('wheel', e => {
 window.addEventListener('contextmenu', e => {
   if(STATE === 'PLAYING' && player) {
     e.preventDefault(); // Prevent default context menu
-    const order = ['blaster', 'staff', 'el_clover', 'sword', 'claymore'];
+    const order = ['blaster', 'staff', 'el_clover', 'sword', 'claymore', 'aa_grappler'];
     const unlocked = order.filter(w => player.unlockedWeapons.includes(w));
     if(unlocked.length > 1) {
       let idx = unlocked.indexOf(player.currentWeapon);
@@ -1416,7 +1458,7 @@ window.addEventListener('keydown', e => {
     document.getElementById('pause-overlay').classList.toggle('hidden', !isPaused);
   }
   if(STATE === 'PLAYING') {
-    const order = ['blaster', 'staff', 'el_clover', 'sword', 'claymore'];
+    const order = ['blaster', 'staff', 'el_clover', 'sword', 'claymore', 'aa_grappler'];
     const unlocked = order.filter(w => player && player.unlockedWeapons.includes(w));
     if(e.key >= '1' && e.key <= '4') {
       const index = parseInt(e.key) - 1;
@@ -1621,34 +1663,58 @@ class Player extends Entity {
     this.fireRate = 0.4;
     this.fireCooldown = 0;
     this.walkTimer = 0;
+    this.activeGrapple = null;
+    this.isGrappling = false;
+    this.grappleTarget = null;
   }
   update(dt) {
-    this.vx = 0;
-    this.vy = 0;
-    if(keys['w'] || keys['arrowup']) this.vy -= this.speed;
-    if(keys['s'] || keys['arrowdown']) this.vy += this.speed;
-    if(keys['a'] || keys['arrowleft']) this.vx -= this.speed;
-    if(keys['d'] || keys['arrowright']) this.vx += this.speed;
-
-    if(this.vx !== 0 && this.vy !== 0) {
-      const invMag = 1 / Math.sqrt(2);
-      this.vx *= invMag;
-      this.vy *= invMag;
-    }
-
-    if(this.vx !== 0 || this.vy !== 0) {
-      this.walkTimer += dt * 10;
-      const frame = Math.floor(this.walkTimer) % 4;
-      if (frame === 0) this.sprite = SPRITES.player_walk1;
-      else if (frame === 1) this.sprite = SPRITES.player;
-      else if (frame === 2) this.sprite = SPRITES.player_walk2;
-      else this.sprite = SPRITES.player;
+    if(this.isGrappling) {
+      const cx = this.x + this.w/2;
+      const cy = this.y + this.h/2;
+      const dx = this.grappleTarget.x + 8 - cx;
+      const dy = this.grappleTarget.y + 8 - cy;
+      const distSq = dx*dx + dy*dy;
+      if(distSq < 400 || (keys['w']||keys['arrowup']||keys['s']||keys['arrowdown']||keys['a']||keys['arrowleft']||keys['d']||keys['arrowright'])) {
+        this.isGrappling = false;
+        this.vx = 0;
+        this.vy = 0;
+      } else {
+        const mag = Math.sqrt(distSq);
+        this.vx = (dx / mag) * this.speed * 4;
+        this.vy = (dy / mag) * this.speed * 4;
+      }
+      super.update(dt);
+      if(this.isGrappling && this.vx === 0 && this.vy === 0) {
+        this.isGrappling = false;
+      }
     } else {
-      this.walkTimer = 0;
-      this.sprite = SPRITES.player;
-    }
+      this.vx = 0;
+      this.vy = 0;
+      if(keys['w'] || keys['arrowup']) this.vy -= this.speed;
+      if(keys['s'] || keys['arrowdown']) this.vy += this.speed;
+      if(keys['a'] || keys['arrowleft']) this.vx -= this.speed;
+      if(keys['d'] || keys['arrowright']) this.vx += this.speed;
 
-    super.update(dt);
+      if(this.vx !== 0 && this.vy !== 0) {
+        const invMag = 1 / Math.sqrt(2);
+        this.vx *= invMag;
+        this.vy *= invMag;
+      }
+
+      if(this.vx !== 0 || this.vy !== 0) {
+        this.walkTimer += dt * 10;
+        const frame = Math.floor(this.walkTimer) % 4;
+        if (frame === 0) this.sprite = SPRITES.player_walk1;
+        else if (frame === 1) this.sprite = SPRITES.player;
+        else if (frame === 2) this.sprite = SPRITES.player_walk2;
+        else this.sprite = SPRITES.player;
+      } else {
+        this.walkTimer = 0;
+        this.sprite = SPRITES.player;
+      }
+
+      super.update(dt);
+    }
 
     if(this.fireCooldown > 0) this.fireCooldown -= dt;
     if(mouse.down && this.fireCooldown <= 0) {
@@ -1661,6 +1727,16 @@ class Player extends Entity {
   }
   
   draw(ctx) {
+    if(this.activeGrapple && !this.activeGrapple.dead) {
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(this.x + this.w/2 - camera.x, this.y + this.h/2 - camera.y);
+      ctx.lineTo(this.activeGrapple.x + this.activeGrapple.w/2 - camera.x, this.activeGrapple.y + this.activeGrapple.h/2 - camera.y);
+      ctx.stroke();
+      ctx.restore();
+    }
     super.draw(ctx);
     
     const cx = this.x + this.w/2 - camera.x;
@@ -1694,6 +1770,28 @@ class Player extends Entity {
       p.w = 20;
       p.h = 20;
       entities.push(p);
+    } else if (wData.type === 'grapple') {
+      if(this.activeGrapple && !this.activeGrapple.dead && this.activeGrapple.attached) {
+        this.isGrappling = true;
+        this.grappleTarget = {x: this.activeGrapple.x, y: this.activeGrapple.y};
+        this.activeGrapple.die();
+        this.activeGrapple = null;
+        playSound('shoot');
+      } else if (!this.activeGrapple || this.activeGrapple.dead) {
+        playSound('shoot');
+        const cx = this.x + this.w/2;
+        const cy = this.y + this.h/2;
+        const mx = mouse.x + camera.x;
+        const my = mouse.y + camera.y;
+        const angle = Math.atan2(my - cy, mx - cx);
+        
+        const projX = cx + Math.cos(angle) * 10 - 10;
+        const projY = cy + Math.sin(angle) * 10 - 10;
+        
+        const p = new GrappleProjectile(projX, projY, Math.cos(angle), Math.sin(angle), 'player', wData.projSprite);
+        entities.push(p);
+        this.activeGrapple = p;
+      }
     } else if (wData.type === 'melee') {
       playSound('shoot');
       const cx = this.x + this.w/2;
@@ -2026,6 +2124,41 @@ class Projectile extends Entity {
   }
 }
 
+class GrappleProjectile extends Entity {
+  constructor(x, y, dx, dy, owner, sprite) {
+    super(x, y, 16, 16, sprite);
+    this.dx = dx;
+    this.dy = dy;
+    this.speed = 400;
+    this.owner = owner;
+    this.life = 5; 
+    this.attached = false;
+  }
+  update(dt) {
+    if(!this.attached) {
+      this.x += this.dx * this.speed * dt;
+      this.y += this.dy * this.speed * dt;
+      this.life -= dt;
+      if(this.life <= 0) this.die();
+      
+      const tx = Math.floor(this.x / TILE_SIZE);
+      const ty = Math.floor(this.y / TILE_SIZE);
+      if(!map[ty] || map[ty][tx] === 0 || map[ty][tx] === 2) {
+        this.attached = true;
+      }
+      
+      for(const e of entities) {
+        if(!e.dead && e !== this && e.faction !== 'neutral' && e.faction !== this.owner && e.faction !== 'player') {
+          if(rectIntersect(this, e)) {
+            this.attached = true;
+            break;
+          }
+        }
+      }
+    }
+  }
+}
+
 class Item extends Entity {
   constructor(x, y, type) {
     super(x, y, type === 'gold' ? 16 : 32, type === 'gold' ? 16 : 32, type === 'gold' ? SPRITES.gold : SPRITES.portal); 
@@ -2045,6 +2178,24 @@ class Item extends Entity {
         saveGame();
         floorTransitionPending = true;
       }
+    }
+  }
+  draw(ctx) {
+    if (this.type === 'portal') {
+      ctx.save();
+      const cx = this.x - camera.x + this.w/2;
+      const cy = this.y - camera.y + this.h/2;
+      ctx.translate(cx, cy);
+      const time = Date.now() * 0.003;
+      ctx.rotate(time);
+      const scale = 1 + Math.sin(time * 2) * 0.15;
+      ctx.scale(scale, scale);
+      if(this.sprite) {
+        ctx.drawImage(this.sprite, -this.w/2, -this.h/2, this.w, this.h);
+      }
+      ctx.restore();
+    } else {
+      super.draw(ctx);
     }
   }
 }
@@ -2294,8 +2445,8 @@ function generateMap() {
     }
     
     if(i === rooms.length - 1 && level % 10 !== 0) {
-      const tx = Math.floor(r.x + r.w/2);
-      const ty = Math.floor(r.y + r.h/2);
+      const tx = Math.floor(r.x + 2);
+      const ty = Math.floor(r.y + 2);
       const sx = tx * TILE_SIZE;
       const sy = ty * TILE_SIZE;
       entities.push(new Item(sx, sy, 'portal'));
