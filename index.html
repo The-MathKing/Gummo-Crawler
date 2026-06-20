@@ -297,24 +297,24 @@
           <button class="shop-btn weapon-shop-btn" data-weapon="blaster" id="btn-w-blaster">EQUIP</button>
         </div>
         <div class="shop-item">
-          <span>Magic Staff (Cost: 15 Coins)</span>
-          <button class="shop-btn weapon-shop-btn" data-weapon="staff" id="btn-w-staff">BUY</button>
-        </div>
-        <div class="shop-item">
-          <span>El Clover (Cost: 25 Coins)</span>
-          <button class="shop-btn weapon-shop-btn" data-weapon="el_clover" id="btn-w-el_clover">BUY</button>
-        </div>
-        <div class="shop-item">
-          <span>Rusty Sword (Cost: 5 Coins)</span>
+          <span>Rusty Sword (Cost: 5 Shards)</span>
           <button class="shop-btn weapon-shop-btn" data-weapon="sword" id="btn-w-sword">BUY</button>
-        </div>
-        <div class="shop-item">
-          <span>Claymore (Cost: 50 Coins)</span>
-          <button class="shop-btn weapon-shop-btn" data-weapon="claymore" id="btn-w-claymore">BUY</button>
         </div>
         <div class="shop-item">
           <span>AA Grappler (Cost: 10 Shards)</span>
           <button class="shop-btn weapon-shop-btn" data-weapon="aa_grappler" id="btn-w-aa_grappler">BUY</button>
+        </div>
+        <div class="shop-item">
+          <span>Magic Staff (Cost: 15 Shards)</span>
+          <button class="shop-btn weapon-shop-btn" data-weapon="staff" id="btn-w-staff">BUY</button>
+        </div>
+        <div class="shop-item">
+          <span>El Clover (Cost: 25 Shards)</span>
+          <button class="shop-btn weapon-shop-btn" data-weapon="el_clover" id="btn-w-el_clover">BUY</button>
+        </div>
+        <div class="shop-item">
+          <span>Claymore (Cost: 50 Shards)</span>
+          <button class="shop-btn weapon-shop-btn" data-weapon="claymore" id="btn-w-claymore">BUY</button>
         </div>
         <div style="text-align:center; margin-top: 30px;">
           <button id="close-weapon-shop-btn">LEAVE ARMORY</button>
@@ -1428,7 +1428,7 @@ let isInfiniteCoinsEnabled = false;
 
 window.addEventListener('wheel', e => {
   if(STATE === 'PLAYING' && player) {
-    const order = ['blaster', 'staff', 'el_clover', 'sword', 'claymore', 'aa_grappler'];
+    const order = ['blaster', 'sword', 'aa_grappler', 'staff', 'el_clover', 'claymore'];
     const unlocked = order.filter(w => player.unlockedWeapons.includes(w));
     if(unlocked.length > 1) {
       let idx = unlocked.indexOf(player.currentWeapon);
@@ -1442,7 +1442,7 @@ window.addEventListener('wheel', e => {
 window.addEventListener('contextmenu', e => {
   if(STATE === 'PLAYING' && player) {
     e.preventDefault(); // Prevent default context menu
-    const order = ['blaster', 'staff', 'el_clover', 'sword', 'claymore', 'aa_grappler'];
+    const order = ['blaster', 'sword', 'aa_grappler', 'staff', 'el_clover', 'claymore'];
     const unlocked = order.filter(w => player.unlockedWeapons.includes(w));
     if(unlocked.length > 1) {
       let idx = unlocked.indexOf(player.currentWeapon);
@@ -1459,9 +1459,9 @@ window.addEventListener('keydown', e => {
     document.getElementById('pause-overlay').classList.toggle('hidden', !isPaused);
   }
   if(STATE === 'PLAYING') {
-    const order = ['blaster', 'staff', 'el_clover', 'sword', 'claymore', 'aa_grappler'];
+    const order = ['blaster', 'sword', 'aa_grappler', 'staff', 'el_clover', 'claymore'];
     const unlocked = order.filter(w => player && player.unlockedWeapons.includes(w));
-    if(e.key >= '1' && e.key <= '4') {
+    if(e.key >= '1' && e.key <= '6') {
       const index = parseInt(e.key) - 1;
       if(index < unlocked.length) {
         equipWeapon(unlocked[index]);
@@ -1506,7 +1506,7 @@ function updateHotbar() {
   }
   hotbar.classList.remove('hidden');
   hotbar.innerHTML = '';
-  const order = ['blaster', 'staff', 'el_clover', 'sword', 'claymore', 'aa_grappler'];
+  const order = ['blaster', 'sword', 'aa_grappler', 'staff', 'el_clover', 'claymore'];
   let slotNum = 1;
   order.forEach(w => {
     if(player.unlockedWeapons.includes(w)) {
@@ -2974,7 +2974,7 @@ function openWeaponShop() {
 }
 
 function updateWeaponShopUI() {
-  const weapons = ['blaster', 'staff', 'sword', 'claymore'];
+  const weapons = ['blaster', 'sword', 'aa_grappler', 'staff', 'el_clover', 'claymore'];
   for (const w of weapons) {
     const btn = document.getElementById('btn-w-' + w);
     if (!btn) continue;
@@ -2988,8 +2988,8 @@ function updateWeaponShopUI() {
         btn.disabled = false;
       }
     } else {
-      btn.innerText = `BUY (${wData.cost}g)`;
-      btn.disabled = player.gold < wData.cost;
+      btn.innerText = `BUY (${wData.cost} Shards)`;
+      btn.disabled = player.dungeonCoins < wData.cost;
     }
   }
 }
