@@ -497,6 +497,7 @@
             to forge. You can only buy one per floor!</p>
           <div id="armorer-cards-wrapper"
             style="display:flex; gap: 20px; justify-content: center; margin: 30px 0; perspective: 1000px;"></div>
+          <div id="armorer-inventory" style="display:flex; gap: 10px; margin-bottom: 20px; flex-wrap:wrap; max-width:80%;"></div>
           <button id="close-armorer-shop-btn">LEAVE ARMORY</button>
         </div>
       </div>
@@ -1883,24 +1884,22 @@
       }
       hotbar.classList.remove('hidden');
       hotbar.innerHTML = '';
-      const order = ['blaster', 'sword', 'aa_grappler', 'staff', 'el_clover', 'claymore'];
       let slotNum = 1;
-      order.forEach(w => {
-        if (player.unlockedWeapons.includes(w)) {
-          const wData = WEAPONS[w];
-          const div = document.createElement('div');
-          div.className = 'hotbar-slot' + (player.currentWeapon === w ? ' active' : '');
-          div.innerHTML = `<span class="slot-num">${slotNum}</span><canvas width="32" height="32" style="width:24px; height:24px; position:relative; z-index:2;"></canvas>`;
-          const cvs = div.querySelector('canvas');
-          const ctx = cvs.getContext('2d');
-          ctx.imageSmoothingEnabled = false;
-          if (wData.sprite) {
-            ctx.drawImage(wData.sprite, 0, 0, 32, 32);
-          }
-          div.onclick = () => equipWeapon(w);
-          hotbar.appendChild(div);
-          slotNum++;
+      player.unlockedWeapons.forEach(w => {
+        const wData = WEAPONS[w];
+        if (!wData) return;
+        const div = document.createElement('div');
+        div.className = 'hotbar-slot' + (player.currentWeapon === w ? ' active' : '');
+        div.innerHTML = `<span class="slot-num">${slotNum}</span><canvas width="32" height="32" style="width:24px; height:24px; position:relative; z-index:2;"></canvas>`;
+        const cvs = div.querySelector('canvas');
+        const ctx = cvs.getContext('2d');
+        ctx.imageSmoothingEnabled = false;
+        if (wData.sprite) {
+          ctx.drawImage(wData.sprite, 0, 0, 32, 32);
         }
+        div.onclick = () => equipWeapon(w);
+        hotbar.appendChild(div);
+        slotNum++;
       });
     }
 
@@ -4190,6 +4189,9 @@
 
         if (!player.unlockedWeapons.includes(c.id)) {
           player.unlockedWeapons.push(c.id);
+          if (player.unlockedWeapons.length > 6) {
+            player.unlockedWeapons.shift();
+          }
         }
         equipWeapon(c.id);
 
@@ -4243,6 +4245,26 @@
 
         const wrapper = document.getElementById('armorer-cards-wrapper');
         wrapper.innerHTML = '';
+        
+        const inv = document.getElementById('armorer-inventory');
+        inv.innerHTML = '';
+        if (player.unlockedArmors && player.unlockedArmors.length > 0) {
+          player.unlockedArmors.forEach(a => {
+            const btn = document.createElement('button');
+            btn.innerText = `Equip ${a}`;
+            btn.style.padding = '5px 10px';
+            btn.style.background = player.armor === a ? '#3b82f6' : '#444';
+            btn.style.color = 'white';
+            btn.style.border = '1px solid #fff';
+            btn.style.cursor = 'pointer';
+            btn.onclick = () => {
+              player.armor = a;
+              openArmorerShop(); // Refresh UI highlights
+              updateHUD();
+            };
+            inv.appendChild(btn);
+          });
+        }
 
         for (let i = 0; i < 3; i++) {
           const c = armorerCards[i];
