@@ -450,8 +450,7 @@
 
           <div style="text-align:center; margin-top: 30px; display:flex; justify-content:center; gap:10px;">
             <button id="delete-save-btn"
-              style="border-color:#ef4444; color:#ef4444; margin:0; padding:10px; font-size:12px;">ERASE CURRENT
-              SAVE</button>
+              style="border-color:#ef4444; color:#ef4444; margin:0; padding:10px; font-size:12px;">RESET CURRENT RUN</button>
             <button id="close-settings-btn" style="margin:0; padding:10px; font-size:12px;">BACK</button>
           </div>
         </div>
@@ -2270,18 +2269,9 @@
           this.sprite = SPRITES.boss3; this.w = 64; this.h = 64; this.maxHp = 150; this.speed = 55; this.baseDmg = 4;
         }
 
-        let powerRatio = 1;
-        if (player) {
-          const expHp = 3 + level;
-          const expDmg = 1 + (level / 2);
-          const expSpeed = 150 + (level * 10);
-          powerRatio = ((player.maxHp / expHp) + (player.dmg / expDmg) + (player.speed / expSpeed)) / 3;
-          powerRatio = Math.max(1, powerRatio);
-        }
-
-        this.maxHp = Math.floor(this.maxHp * (1 + level * 0.4) * powerRatio);
+        this.maxHp = Math.floor(this.maxHp * (1 + level * 0.4));
         this.hp = this.maxHp;
-        this.dmg = Math.floor((this.baseDmg + Math.floor(level / 4)) * powerRatio);
+        this.dmg = Math.floor(this.baseDmg + Math.floor(level / 4));
       }
 
       update(dt) {
@@ -3474,7 +3464,14 @@
       const display = document.getElementById('highest-floor-display');
       if (display) display.innerText = `Highest Floor Reached: ${highest}`;
 
-      document.getElementById('play-game-btn').onclick = () => {
+      const playBtn = document.getElementById('play-game-btn');
+      if (d && d.maxHp !== undefined) {
+        playBtn.innerText = `CONTINUE RUN (Floor ${d.currentFloor})`;
+      } else {
+        playBtn.innerText = `PLAY GAME`;
+      }
+
+      playBtn.onclick = () => {
         document.getElementById('menu-overlay').classList.add('hidden');
         startGame(true);
       };
