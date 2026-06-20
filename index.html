@@ -673,7 +673,7 @@
       const currentHighest = getSaveData()?.highestFloor || 1;
       localStorage.setItem('dungeonCrawlerSave', JSON.stringify({ highestFloor: currentHighest }));
       showNotification("Progress Erased");
-      init();
+      updateMenuUI();
     }
 
     // --- ASSET GENERATION ---
@@ -3458,7 +3458,7 @@
     }
 
     // --- UI & MENUS ---
-    function init() {
+    function updateMenuUI() {
       const d = getSaveData();
       const highest = d ? d.highestFloor : 1;
       const display = document.getElementById('highest-floor-display');
@@ -3470,7 +3470,12 @@
       } else {
         playBtn.innerText = `PLAY GAME`;
       }
+    }
 
+    function init() {
+      updateMenuUI();
+
+      const playBtn = document.getElementById('play-game-btn');
       playBtn.onclick = () => {
         document.getElementById('menu-overlay').classList.add('hidden');
         startGame(true);
@@ -3652,7 +3657,8 @@
         document.getElementById('exit-game-btn').classList.add('hidden');
         document.getElementById('codex-btn').classList.add('hidden');
         document.getElementById('menu-overlay').classList.remove('hidden');
-        updateSlotLabels();
+        isPaused = false;
+        updateMenuUI();
         STATE = 'MENU';
         updateHotbar();
         bgMusic.pause();
@@ -3668,7 +3674,7 @@
           document.getElementById('codex-btn').classList.add('hidden');
           document.getElementById('menu-overlay').classList.remove('hidden');
           isPaused = false;
-          updateSlotLabels();
+          updateMenuUI();
           STATE = 'MENU';
           updateHotbar();
           bgMusic.pause();
