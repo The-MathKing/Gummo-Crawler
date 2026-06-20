@@ -1506,7 +1506,7 @@ function updateHotbar() {
   }
   hotbar.classList.remove('hidden');
   hotbar.innerHTML = '';
-  const order = ['blaster', 'staff', 'sword', 'claymore'];
+  const order = ['blaster', 'staff', 'el_clover', 'sword', 'claymore', 'aa_grappler'];
   let slotNum = 1;
   order.forEach(w => {
     if(player.unlockedWeapons.includes(w)) {
@@ -1780,16 +1780,11 @@ class Player extends Entity {
         playSound('shoot');
       } else if (!this.activeGrapple || this.activeGrapple.dead) {
         playSound('shoot');
-        const cx = this.x + this.w/2;
-        const cy = this.y + this.h/2;
         const mx = mouse.x + camera.x;
         const my = mouse.y + camera.y;
-        const angle = Math.atan2(my - cy, mx - cx);
         
-        const projX = cx + Math.cos(angle) * 10 - 10;
-        const projY = cy + Math.sin(angle) * 10 - 10;
-        
-        const p = new GrappleProjectile(projX, projY, Math.cos(angle), Math.sin(angle), 'player', wData.projSprite);
+        const p = new GrappleProjectile(mx - 8, my - 8, 0, 0, 'player', wData.projSprite);
+        p.attached = true;
         entities.push(p);
         this.activeGrapple = p;
       }
