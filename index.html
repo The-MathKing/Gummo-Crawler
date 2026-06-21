@@ -443,8 +443,10 @@
 
           <div id="dev-tools" class="settings-row hidden">
             <label style="color:#a1516a;">DEVELOPER TOOLS</label>
-            <div style="display:flex; gap:10px; margin-bottom:10px;">
-              <input type="number" id="dev-floor-input" placeholder="Floor" min="1" style="width: 60px; background: #0d0e1e; border: 1px solid #d3dfe1; color: white; padding: 5px;">
+            <div style="display:flex; gap:10px; margin-bottom:10px; align-items:center;">
+              <button id="dev-floor-minus" style="margin:0; padding:10px; font-size:14px; width:30px;">-</button>
+              <span id="dev-floor-display" style="color:white; font-size:12px; width:30px; text-align:center;">1</span>
+              <button id="dev-floor-plus" style="margin:0; padding:10px; font-size:14px; width:30px;">+</button>
               <button id="dev-set-floor-btn" style="margin:0; padding:10px; font-size:10px; flex:1;">SET FLOOR</button>
             </div>
             <button id="dev-infinite-coins-btn" style="margin:0; padding:10px; font-size:10px; width:100%;">Infinite
@@ -711,6 +713,7 @@
       canvas.height = 16;
       const ctx = canvas.getContext('2d');
       for (let y = 0; y < 16; y++) {
+        if (!lines[y]) continue;
         for (let x = 0; x < 16; x++) {
           const char = lines[y][x] || '.';
           if (char !== '.') {
@@ -1233,8 +1236,8 @@
         '.....bllllb.....',
         '....bbbbbbbb....',
         '....bffffffb....',
-        '...bbF.bF.bb....',
-        '...bFbffbfFb....',
+        '...bbf.bf.bb....',
+        '...bfbffbffb....',
         '...bJffffffJb...',
         '...bJJJJJJJJb...',
         '..bggJJJJJJggb..',
@@ -1242,6 +1245,7 @@
         '..bgbJbgbbJbgb..',
         '..bggggbbggggb..',
         '...bbbb..bbbb...',
+        '................',
         '................'
       ]),
       leather: createSprite([
@@ -1579,24 +1583,6 @@
         '...b.byyyyb.b...',
         '...b.bbwwbb.b...',
         '...b.bbrrbb.b...',
-        '...b.b.bb.b.b...',
-        '......b..b......',
-        '......b..b......',
-        '.....bb..bb.....',
-        '................',
-        '................'
-      ]),
-      armorer: createSprite([
-        '......bbbb......',
-        '.....bllllb.....',
-        '....blbbbbbl....',
-        '....blb..blb....',
-        '....bllllllb....',
-        '.....bbllbb.....',
-        '....bbllllbb....',
-        '...b.bllllb.b...',
-        '...b.bbwwbb.b...',
-        '...b.bbwwbb.b...',
         '...b.b.bb.b.b...',
         '......b..b......',
         '......b..b......',
@@ -2365,6 +2351,17 @@
         this.maxHp = Math.floor(this.maxHp * (1 + level * 0.4));
         this.hp = this.maxHp;
         this.dmg = Math.floor(this.baseDmg + Math.floor(level / 4));
+
+        // Dynamic Scaling to keep game difficult if player is getting ahead
+        if (player) {
+          if (player.dmg * 3 > this.maxHp) {
+            this.maxHp = Math.floor(player.dmg * 3); // Takes at least 3 hits
+            this.hp = this.maxHp;
+          }
+          if (this.dmg < Math.floor(player.maxHp / 10)) {
+            this.dmg = Math.max(1, Math.floor(player.maxHp / 10)); // Deals at least 10% of player HP
+          }
+        }
       }
 
       update(dt) {
@@ -2489,7 +2486,8 @@
                 this.vx = -Math.cos(moveAngle) * this.speed;
                 this.vy = -Math.sin(moveAngle) * this.speed;
               } else {
-                this.vx = 0; this.vy = 0;
+                this.vx = Math.cos(moveAngle + Math.PI/2) * this.speed * 0.5;
+                this.vy = Math.sin(moveAngle + Math.PI/2) * this.speed * 0.5;
               }
 
               if (this.cooldown <= 0) {
@@ -2666,10 +2664,11 @@
               playSound('hit');
               setTimeout(() => showNotification("FOOL! You thought that frail creature was the master of this floor?"), 500);
               entities.push(new Enemy(this.x, this.y, 'boss1'));
-            } else if (level === 30 && !bossDefeated) {
-              bossDefeated = true;
-              victory();
             } else {
+              if (level === 30 && !bossDefeated) {
+                bossDefeated = true;
+                showNotification("You defeated the True Boss! But the dungeon goes deeper...");
+              }
               const cx = this.x + this.w / 2;
               const cy = this.y + this.h / 2;
               const tx = Math.floor(cx / TILE_SIZE);
@@ -3727,17 +3726,31 @@
         updateHUD();
       };
 
+      let devFloorVal = 1;
+      try { devFloorVal = (getSaveData() || {}).currentFloor || 1; } catch(e){}
+      document.getElementById('dev-floor-display').innerText = devFloorVal;
+
+      document.getElementById('dev-floor-minus').onclick = () => {
+        if (devFloorVal > 1) {
+          devFloorVal--;
+          document.getElementById('dev-floor-display').innerText = devFloorVal;
+        }
+      };
+      document.getElementById('dev-floor-plus').onclick = () => {
+        devFloorVal++;
+        document.getElementById('dev-floor-display').innerText = devFloorVal;
+      };
+
       document.getElementById('dev-set-floor-btn').onclick = () => {
-        const floorVal = parseInt(document.getElementById('dev-floor-input').value);
-        if (floorVal && floorVal > 0) {
+        if (devFloorVal && devFloorVal > 0) {
           const d = getSaveData() || {};
-          d.currentFloor = floorVal;
-          if (!d.highestFloor || d.highestFloor < floorVal) d.highestFloor = floorVal;
+          d.currentFloor = devFloorVal;
+          if (!d.highestFloor || d.highestFloor < devFloorVal) d.highestFloor = devFloorVal;
           if (d.maxHp === undefined) d.maxHp = 10;
           if (d.dmg === undefined) d.dmg = 1;
           localStorage.setItem('dungeonCrawlerSave', JSON.stringify(d));
           updateMenuUI();
-          showNotification(`Floor set to ${floorVal}!`);
+          showNotification(`Floor set to ${devFloorVal}!`);
         }
       };
 
