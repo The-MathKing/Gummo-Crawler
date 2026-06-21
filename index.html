@@ -1223,6 +1223,95 @@
         '......bbbb......',
         '................'
       ]),
+      armorer: createSprite([
+        '................',
+        '......bbbb......',
+        '.....bllllb.....',
+        '....bbbbbbbb....',
+        '....bffffffb....',
+        '...bbF.bF.bb....',
+        '...bFbffbfFb....',
+        '...bJffffffJb...',
+        '...bJJJJJJJJb...',
+        '..bggJJJJJJggb..',
+        '..bgbJbgbbJbgb..',
+        '..bgbJbgbbJbgb..',
+        '..bggggbbggggb..',
+        '...bbbb..bbbb...',
+        '................'
+      ]),
+      leather: createSprite([
+        '................',
+        '....brbrbrbr....',
+        '...bryyyyyyrb...',
+        '..brybrbrbrbyb..',
+        '..brbrbrbrbrbr..',
+        '..brybrbrbrbyb..',
+        '..brbr...brbrb..',
+        '..brb.....brbb..',
+        '..bb.......bb...',
+        '................',
+        '................',
+        '................',
+        '................',
+        '................',
+        '................',
+        '................'
+      ]),
+      iron: createSprite([
+        '................',
+        '....ldgdgdgl....',
+        '...ldggggggdl...',
+        '..ldglglglgldl..',
+        '..ldgdgdgdgldl..',
+        '..ldglglglgldl..',
+        '..ldgd...ldgdl..',
+        '..ldl.....lddl..',
+        '..ll.......ll...',
+        '................',
+        '................',
+        '................',
+        '................',
+        '................',
+        '................',
+        '................'
+      ]),
+      vampire: createSprite([
+        '................',
+        '....bprprpb.....',
+        '...bprrrrrrpb...',
+        '..bprbpbpbpbrb..',
+        '..bpbpbpbpbpbb..',
+        '..bprbpbpbpbrb..',
+        '..bpbp...bpbpb..',
+        '..bpb.....bpbb..',
+        '..bb.......bb...',
+        '................',
+        '................',
+        '................',
+        '................',
+        '................',
+        '................',
+        '................'
+      ]),
+      cardboard: createSprite([
+        '................',
+        '................',
+        '................',
+        '....ybybybyb....',
+        '...byyyyyyyyb...',
+        '..byyyyyyyyyyb..',
+        '..byyyyyyyyeyb..',
+        '..byyyyyyyyyyb..',
+        '..byyyyyyyyeyb..',
+        '..byyyyyyyyyyb..',
+        '...byyyyyyyyb...',
+        '....bbbbbbbb....',
+        '................',
+        '................',
+        '................',
+        '................'
+      ]),
       gargoyle: createSprite([
         '................',
         '......bbbb......',
@@ -4294,12 +4383,19 @@
         if (player.unlockedArmors && player.unlockedArmors.length > 0) {
           player.unlockedArmors.forEach(a => {
             const btn = document.createElement('button');
-            btn.innerText = `Equip ${a}`;
-            btn.style.padding = '5px 10px';
+            const spriteKey = a === 'none' ? 'cardboard' : a;
+            const dataUrl = SPRITES[spriteKey] ? SPRITES[spriteKey].toDataURL() : '';
+            if (dataUrl) {
+              btn.innerHTML = `<img src="${dataUrl}" style="width: 32px; height: 32px; image-rendering: pixelated;" title="Equip ${a} Armor"><br><span style="font-size:10px;">${a}</span>`;
+            } else {
+              btn.innerText = `Equip ${a}`;
+            }
+            btn.style.padding = '5px';
             btn.style.background = player.armor === a ? '#6fa9c3' : '#2f3144';
             btn.style.color = 'white';
-            btn.style.border = '1px solid #d3dfe1';
+            btn.style.border = '2px solid ' + (player.armor === a ? '#f2ec8b' : '#d3dfe1');
             btn.style.cursor = 'pointer';
+            btn.style.borderRadius = '4px';
             btn.onclick = () => {
               player.armor = a;
               openArmorerShop(); // Refresh UI highlights
