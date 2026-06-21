@@ -10,7 +10,7 @@
 
     body {
       margin: 0;
-      background: #0d0d12;
+      background: #392c31;
       color: white;
       font-family: 'Press Start 2P', monospace;
       overflow: hidden;
@@ -28,8 +28,8 @@
       position: relative;
       width: 800px;
       height: 600px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
-      background: #000;
+      box-shadow: 0 0 20px rgba(57, 44, 49, 0.8);
+      background: #392c31;
     }
 
     canvas {
@@ -43,7 +43,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.85);
+      background: rgba(57, 44, 49, 0.85);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -57,14 +57,14 @@
     }
 
     h1 {
-      color: #facc15;
+      color: #a49da4;
       margin-bottom: 20px;
       font-size: 32px;
-      text-shadow: 4px 4px 0 #b45309;
+      text-shadow: 4px 4px 0 #5a555a;
     }
 
     h2 {
-      color: #fff;
+      color: #e6eaee;
       margin-bottom: 20px;
       font-size: 24px;
     }
@@ -76,9 +76,9 @@
 
     button {
       font-family: 'Press Start 2P', monospace;
-      background: #1e1e24;
-      color: #fff;
-      border: 4px solid #facc15;
+      background: #392c31;
+      color: #e6eaee;
+      border: 4px solid #a49da4;
       padding: 15px 30px;
       cursor: pointer;
       font-size: 16px;
@@ -86,7 +86,7 @@
     }
 
     button:hover {
-      background: #333;
+      background: #392c31;
       transform: scale(1.05);
     }
 
@@ -104,31 +104,31 @@
       pointer-events: none;
       z-index: 5;
       font-size: 14px;
-      text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+      text-shadow: 2px 2px 0 #392c31, -1px -1px 0 #392c31, 1px -1px 0 #392c31, -1px 1px 0 #392c31, 1px 1px 0 #392c31;
     }
 
     .stat {
-      color: #fff;
+      color: #e6eaee;
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
     .stat-hp {
-      color: #ef4444;
+      color: #83898b;
     }
 
     .stat-gold {
-      color: #facc15;
+      color: #a49da4;
     }
 
     .ui-panel {
-      background: #111827;
-      border: 6px solid #4b5563;
+      background: #392c31;
+      border: 6px solid #5a555a;
       padding: 30px;
       text-align: left;
       border-radius: 8px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 10px 25px rgba(57, 44, 49, 0.5);
     }
 
     #shop-ui {
@@ -149,17 +149,17 @@
       margin-left: 10px;
       margin-top: 0;
       font-size: 10px;
-      border-color: #4b5563;
+      border-color: #5a555a;
     }
 
     .shop-btn:hover:not(:disabled) {
-      border-color: #facc15;
+      border-color: #a49da4;
     }
 
     .shop-btn:disabled {
       opacity: 0.5;
       cursor: not-allowed;
-      border-color: #374151;
+      border-color: #4a3c4a;
     }
 
     #settings-ui {
@@ -174,7 +174,7 @@
       display: block;
       margin-bottom: 10px;
       font-size: 12px;
-      color: #facc15;
+      color: #a49da4;
     }
 
     .settings-row input[type="range"] {
@@ -187,9 +187,9 @@
       padding: 10px;
       font-family: 'Press Start 2P', monospace;
       font-size: 10px;
-      background: #000;
-      color: #fff;
-      border: 2px solid #4b5563;
+      background: #392c31;
+      color: #e6eaee;
+      border: 2px solid #5a555a;
     }
 
 
@@ -199,8 +199,8 @@
       bottom: 20%;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.8);
-      color: #facc15;
+      background: rgba(57, 44, 49, 0.8);
+      color: #a49da4;
       padding: 15px 30px;
       border: 4px solid white;
       border-radius: 4px;
@@ -224,9 +224,9 @@
     .hotbar-slot {
       width: 40px;
       height: 40px;
-      border: 2px solid #555;
-      background: rgba(0, 0, 0, 0.6);
-      color: #ccc;
+      border: 2px solid #5a555a;
+      background: rgba(57, 44, 49, 0.6);
+      color: #d5becd;
       border-radius: 4px;
       display: flex;
       align-items: center;
@@ -241,10 +241,10 @@
     }
 
     .hotbar-slot.active {
-      border-color: #3b82f6;
-      background: rgba(59, 130, 246, 0.3);
-      color: #fff;
-      box-shadow: 0 0 10px #3b82f6;
+      border-color: #83898b;
+      background: rgba(131, 137, 139, 0.3);
+      color: #e6eaee;
+      box-shadow: 0 0 10px #83898b;
     }
 
     .hotbar-slot .slot-num {
@@ -253,7 +253,7 @@
       left: 4px;
       font-size: 10px;
       font-weight: bold;
-      color: #fbbf24;
+      color: #a49da4;
       z-index: 2;
     }
 
@@ -262,7 +262,7 @@
       bottom: 0;
       left: 0;
       width: 100%;
-      background: rgba(255, 255, 255, 0.4);
+      background: rgba(230, 234, 238, 0.4);
       z-index: 1;
       pointer-events: none;
       transition: height 0.1s linear;
@@ -292,7 +292,7 @@
       width: 100%;
       height: 100%;
       backface-visibility: hidden;
-      border: 4px solid #fff;
+      border: 4px solid #e6eaee;
       border-radius: 8px;
       display: flex;
       flex-direction: column;
@@ -304,31 +304,31 @@
     }
 
     .card-front {
-      background: repeating-linear-gradient(45deg, #1e1e24, #1e1e24 10px, #333 10px, #333 20px);
-      border-color: #555;
+      background: repeating-linear-gradient(45deg, #392c31, #392c31 10px, #392c31 10px, #392c31 20px);
+      border-color: #5a555a;
     }
 
     .card-front::after {
       content: '?';
       font-size: 48px;
-      color: #facc15;
+      color: #a49da4;
     }
 
     .card-back {
-      background: #111827;
+      background: #392c31;
       transform: rotateY(180deg);
     }
 
     .card-title {
       font-size: 10px;
       margin-bottom: 10px;
-      color: #fff;
+      color: #e6eaee;
       line-height: 1.4;
     }
 
     .card-desc {
       font-size: 12px;
-      color: #facc15;
+      color: #a49da4;
     }
 
     .card-rarity {
@@ -353,21 +353,21 @@
 
       <div id="hotbar" class="hidden"></div>
       <div id="dash-cd-container"
-        style="position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%); width: 150px; height: 8px; background: rgba(0,0,0,0.5); border: 2px solid #555; border-radius: 4px; z-index: 5;"
+        style="position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%); width: 150px; height: 8px; background: rgba(57, 44, 49, 0.5); border: 2px solid #5a555a; border-radius: 4px; z-index: 5;"
         class="hidden">
-        <div id="dash-cd-fill" style="width: 0%; height: 100%; background: #10b981;"></div>
+        <div id="dash-cd-fill" style="width: 0%; height: 100%; background: #73817b;"></div>
       </div>
       <div id="interact-prompt"
-        style="position: absolute; bottom: 100px; left: 0; width: 100%; text-align: center; font-family: 'Press Start 2P', monospace; font-size: 14px; color: white; text-shadow: 2px 2px 0 #000; z-index: 5; pointer-events: none; transition: opacity 0.2s ease; opacity: 0;">
+        style="position: absolute; bottom: 100px; left: 0; width: 100%; text-align: center; font-family: 'Press Start 2P', monospace; font-size: 14px; color: white; text-shadow: 2px 2px 0 #392c31; z-index: 5; pointer-events: none; transition: opacity 0.2s ease; opacity: 0;">
         Press E to interact
       </div>
 
       <div style="position:absolute; top:50px; right:15px; z-index:5; display:flex; gap:10px;">
 
         <button id="codex-btn" class="hidden"
-          style="padding:5px 10px; font-size:10px; border-color:#a855f7;">CODEX</button>
+          style="padding:5px 10px; font-size:10px; border-color:#a49da4;">CODEX</button>
         <button id="exit-game-btn" class="hidden"
-          style="padding:5px 10px; font-size:10px; border-color:#3b82f6;">EXIT</button>
+          style="padding:5px 10px; font-size:10px; border-color:#83898b;">EXIT</button>
       </div>
 
       <div id="notification"></div>
@@ -377,22 +377,22 @@
 
         <div id="save-slots"
           style="margin: 30px auto 0; display: flex; flex-direction: column; gap: 15px; width: 400px; max-width: 100%; align-items: center;">
-          <button id="play-game-btn" style="padding: 15px 30px; font-size: 16px; border-color: #facc15; color: #facc15; background: #222; cursor: pointer; font-family: 'Press Start 2P', monospace;">PLAY GAME</button>
-          <div id="highest-floor-display" style="color: #fff; font-size: 14px; margin-top: 10px;">Highest Floor Reached: 1</div>
+          <button id="play-game-btn" style="padding: 15px 30px; font-size: 16px; border-color: #a49da4; color: #a49da4; background: #392c31; cursor: pointer; font-family: 'Press Start 2P', monospace;">PLAY GAME</button>
+          <div id="highest-floor-display" style="color: #e6eaee; font-size: 14px; margin-top: 10px;">Highest Floor Reached: 1</div>
         </div>
 
         <div style="margin-top: 30px; display: flex; gap: 10px; justify-content: center;">
           <button id="open-instructions-btn"
-            style="padding: 10px 20px; font-size:12px; border-color:#fff;">INSTRUCTIONS</button>
+            style="padding: 10px 20px; font-size:12px; border-color:#e6eaee;">INSTRUCTIONS</button>
           <button id="open-settings-btn"
-            style="padding: 10px 20px; font-size:12px; border-color:#fff;">SETTINGS</button>
-          <button id="open-credits-btn" style="padding: 10px 20px; font-size:12px; border-color:#fff;">CREDITS</button>
+            style="padding: 10px 20px; font-size:12px; border-color:#e6eaee;">SETTINGS</button>
+          <button id="open-credits-btn" style="padding: 10px 20px; font-size:12px; border-color:#e6eaee;">CREDITS</button>
         </div>
       </div>
 
       <div id="instructions-overlay" class="overlay hidden">
         <div class="ui-panel" style="width: 400px;">
-          <h2 style="text-align:center; color:#facc15;">INSTRUCTIONS</h2>
+          <h2 style="text-align:center; color:#a49da4;">INSTRUCTIONS</h2>
           <p style="text-align:center;">WASD to move, Mouse Click to shoot.</p>
           <p style="text-align:center;">1-6 to switch weapons. Space to Dash.</p>
           <p style="text-align:center;">Press ESC to Pause.</p>
@@ -404,7 +404,7 @@
 
       <div id="credits-overlay" class="overlay hidden">
         <div class="ui-panel" style="width: 400px;">
-          <h2 style="text-align:center; color:#facc15;">CREDITS</h2>
+          <h2 style="text-align:center; color:#a49da4;">CREDITS</h2>
           <p style="text-align:center;">Created by Vienna Studios</p>
           <div style="text-align:center; margin-top: 30px;">
             <button id="close-credits-btn">BACK</button>
@@ -413,16 +413,16 @@
       </div>
 
       <div id="pause-overlay" class="overlay hidden">
-        <h1 style="color:#fff;">PAUSED</h1>
+        <h1 style="color:#e6eaee;">PAUSED</h1>
         <div style="display:flex; gap: 15px; margin-top: 20px;">
           <button id="resume-btn" style="margin:0;">RESUME</button>
-          <button class="to-menu-btn" style="margin:0; border-color:#ef4444;">EXIT TO MENU</button>
+          <button class="to-menu-btn" style="margin:0; border-color:#83898b;">EXIT TO MENU</button>
         </div>
       </div>
 
       <div id="settings-overlay" class="overlay hidden">
         <div id="settings-ui" class="ui-panel">
-          <h2 style="text-align:center; color:#fff;">SETTINGS</h2>
+          <h2 style="text-align:center; color:#e6eaee;">SETTINGS</h2>
 
           <div class="settings-row">
             <label>SFX Volume</label>
@@ -442,7 +442,7 @@
           </div>
 
           <div id="dev-tools" class="settings-row hidden">
-            <label style="color:#ef4444;">DEVELOPER TOOLS</label>
+            <label style="color:#83898b;">DEVELOPER TOOLS</label>
             <button id="dev-infinite-coins-btn" style="margin:0; padding:10px; font-size:10px; width:100%;">Infinite
               Coins: OFF</button>
 
@@ -450,29 +450,29 @@
 
           <div style="text-align:center; margin-top: 30px; display:flex; justify-content:center; gap:10px;">
             <button id="delete-save-btn"
-              style="border-color:#ef4444; color:#ef4444; margin:0; padding:10px; font-size:12px;">RESET CURRENT RUN</button>
+              style="border-color:#83898b; color:#83898b; margin:0; padding:10px; font-size:12px;">RESET CURRENT RUN</button>
             <button id="close-settings-btn" style="margin:0; padding:10px; font-size:12px;">BACK</button>
           </div>
         </div>
       </div>
 
       <div id="shop-overlay" class="overlay hidden">
-        <h1 style="color:#facc15; margin-bottom:10px;">MERCHANT</h1>
+        <h1 style="color:#a49da4; margin-bottom:10px;">MERCHANT</h1>
         <p id="merchant-subtitle" style="margin-bottom: 30px; font-size:12px;">Choose a card. The first draw is free!
         </p>
         <div id="cards-wrapper" style="display: flex; gap: 20px; justify-content: center; margin-bottom: 30px;">
           <!-- Cards injected via JS -->
         </div>
         <div style="display:flex; gap: 15px;">
-          <button id="reroll-cards-btn" class="hidden" style="border-color:#3b82f6;">REROLL (50g)</button>
+          <button id="reroll-cards-btn" class="hidden" style="border-color:#83898b;">REROLL (50g)</button>
           <button id="close-shop-btn">LEAVE SHOP</button>
         </div>
       </div>
 
       <div id="armorer-shop-overlay" class="overlay hidden">
         <div class="ui-panel"
-          style="width: 800px; display:flex; flex-direction:column; align-items:center; border-color:#3b82f6;">
-          <h2 style="text-align:center; color:#3b82f6;">ARMORER</h2>
+          style="width: 800px; display:flex; flex-direction:column; align-items:center; border-color:#83898b;">
+          <h2 style="text-align:center; color:#83898b;">ARMORER</h2>
           <p id="armorer-subtitle" style="text-align:center; font-size:14px; margin-bottom:10px;">Choose an armor piece
             to forge. You can only buy one per floor!</p>
           <div id="armorer-cards-wrapper"
@@ -484,8 +484,8 @@
 
       <div id="weapon-shop-overlay" class="overlay hidden">
         <div class="ui-panel"
-          style="width: 800px; display:flex; flex-direction:column; align-items:center; border-color:#a855f7;">
-          <h2 style="text-align:center; color:#a855f7;">WIZARD'S ARMORY</h2>
+          style="width: 800px; display:flex; flex-direction:column; align-items:center; border-color:#a49da4;">
+          <h2 style="text-align:center; color:#a49da4;">WIZARD'S ARMORY</h2>
           <p id="wizard-subtitle" style="text-align:center; font-size:14px; margin-bottom:10px;">Choose a weapon to
             enchant. You can only buy one per floor!</p>
           <div id="wizard-cards-wrapper"
@@ -495,12 +495,12 @@
       </div>
 
       <div id="mercenary-overlay" class="overlay hidden">
-        <div id="mercenary-ui" class="ui-panel" style="width: 400px; border-color: #fca5a5;">
-          <h2 style="text-align:center; color:#fca5a5;">MERCENARY CAMP</h2>
+        <div id="mercenary-ui" class="ui-panel" style="width: 400px; border-color: #d5becd;">
+          <h2 style="text-align:center; color:#d5becd;">MERCENARY CAMP</h2>
           <p style="text-align:center; font-size: 10px;">"Need a hand? I'll fight by your side. Forever."</p>
           <div class="shop-item">
             <span id="merc-cost-text">Hire Mercenary (Cost: Xg)</span>
-            <button class="shop-btn" id="buy-merc" style="border-color:#fca5a5; color:#fca5a5;">HIRE</button>
+            <button class="shop-btn" id="buy-merc" style="border-color:#d5becd; color:#d5becd;">HIRE</button>
           </div>
           <div style="text-align:center; margin-top: 30px;">
             <button id="close-merc-btn">LEAVE CAMP</button>
@@ -509,19 +509,19 @@
       </div>
 
       <div id="gameover-overlay" class="overlay hidden">
-        <h1 style="color:#ef4444;">GAME OVER</h1>
+        <h1 style="color:#83898b;">GAME OVER</h1>
         <p id="stats-text"></p>
         <div style="display:flex; gap: 15px; margin-top: 20px;">
           <button id="restart-btn" style="margin:0;">RESPAWN</button>
-          <button class="to-menu-btn" style="margin:0; border-color:#3b82f6;">MAIN MENU</button>
+          <button class="to-menu-btn" style="margin:0; border-color:#83898b;">MAIN MENU</button>
         </div>
       </div>
 
       <div id="victory-overlay" class="overlay hidden">
-        <h1 style="color:#facc15;">VICTORY!</h1>
+        <h1 style="color:#a49da4;">VICTORY!</h1>
         <p>You defeated the True Boss!</p>
-        <div id="victory-stats-text" style="margin:20px; text-align:left; color:#ccc;"></div>
-        <button id="continue-btn" style="border-color:#10b981; font-size:14px; padding:15px 30px;">CONTINUE
+        <div id="victory-stats-text" style="margin:20px; text-align:left; color:#d5becd;"></div>
+        <button id="continue-btn" style="border-color:#73817b; font-size:14px; padding:15px 30px;">CONTINUE
           ADVENTURE</button>
       </div>
 
@@ -529,30 +529,30 @@
 
       <div id="codex-overlay" class="overlay hidden">
         <div id="codex-ui" class="ui-panel"
-          style="width: 600px; background: #e5e5f7; color: #111; border: 8px solid #8b4513; border-radius: 12px; position: relative;">
+          style="width: 600px; background: #e6eaee; color: #392c31; border: 8px solid #4a3c4a; border-radius: 12px; position: relative;">
           <h2
-            style="text-align:center; color:#8b4513; border-bottom: 2px solid #8b4513; padding-bottom: 10px; margin-top: 0;">
+            style="text-align:center; color:#4a3c4a; border-bottom: 2px solid #4a3c4a; padding-bottom: 10px; margin-top: 0;">
             MONSTER CODEX</h2>
           <div id="codex-book"
-            style="display: flex; height: 300px; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;">
+            style="display: flex; height: 300px; border-top: 1px solid #d5becd; border-bottom: 1px solid #d5becd;">
             <div
-              style="flex: 1; border-right: 2px solid #8b4513; display: flex; align-items: center; justify-content: center; background: #fafafa; position: relative;">
+              style="flex: 1; border-right: 2px solid #4a3c4a; display: flex; align-items: center; justify-content: center; background: #e6eaee; position: relative;">
               <canvas id="codex-canvas" width="200" height="200" style="image-rendering: pixelated;"></canvas>
             </div>
-            <div style="flex: 1; padding: 20px; background: #fdfdfd; overflow-y: auto; text-align: left;">
-              <h3 id="codex-title" style="color: #b45309; margin-top: 0; font-size: 16px;"></h3>
-              <div id="codex-desc" style="font-size: 12px; line-height: 1.8; color: #333;"></div>
+            <div style="flex: 1; padding: 20px; background: #e6eaee; overflow-y: auto; text-align: left;">
+              <h3 id="codex-title" style="color: #5a555a; margin-top: 0; font-size: 16px;"></h3>
+              <div id="codex-desc" style="font-size: 12px; line-height: 1.8; color: #392c31;"></div>
             </div>
           </div>
           <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
             <button id="codex-prev-btn"
-              style="border-color:#8b4513; color:#8b4513; background:#fff; font-size:10px;">PREV</button>
-            <span id="codex-page-text" style="color: #8b4513; font-size: 12px; font-weight: bold;"></span>
+              style="border-color:#4a3c4a; color:#4a3c4a; background:#e6eaee; font-size:10px;">PREV</button>
+            <span id="codex-page-text" style="color: #4a3c4a; font-size: 12px; font-weight: bold;"></span>
             <button id="codex-next-btn"
-              style="border-color:#8b4513; color:#8b4513; background:#fff; font-size:10px;">NEXT</button>
+              style="border-color:#4a3c4a; color:#4a3c4a; background:#e6eaee; font-size:10px;">NEXT</button>
           </div>
           <div style="text-align:center; margin-top: 20px;">
-            <button id="close-codex-btn" style="background:#8b4513; color:#fff; border-color:#5c2e0e;">CLOSE
+            <button id="close-codex-btn" style="background:#4a3c4a; color:#e6eaee; border-color:#392c31;">CLOSE
               BOOK</button>
           </div>
         </div>
@@ -679,26 +679,26 @@
     // --- ASSET GENERATION ---
     const colors = {
       '.': 'transparent',
-      'b': '#2e222f',
-      'w': '#f2ec8b',
-      'g': '#665964',
-      'r': '#993d41',
-      'G': '#a9b2a2',
-      'B': '#576069',
-      'y': '#fbb954',
-      'o': '#cd683d',
-      'p': '#7a3045',
-      'br': '#997f73',
-      'dg': '#443846',
-      'lg': '#b0a987',
-      'db': '#45293f',
-      'lb': '#788a87',
-      'e': '#fbb954',
-      'P': '#45293f',
-      'f': '#cd683d',
-      'J': '#576069',
-      'l': '#b0a987',
-      'd': '#443846'
+      'b': '#392c31',
+      'w': '#d5becd',
+      'g': '#5a555a',
+      'r': '#5a555a',
+      'G': '#a49da4',
+      'B': '#62696a',
+      'y': '#c5b2bd',
+      'o': '#73817b',
+      'p': '#4a3c4a',
+      'br': '#83898b',
+      'dg': '#4a3c4a',
+      'lg': '#a49da4',
+      'db': '#392c31',
+      'lb': '#83898b',
+      'e': '#c5b2bd',
+      'P': '#392c31',
+      'f': '#73817b',
+      'J': '#62696a',
+      'l': '#a49da4',
+      'd': '#4a3c4a'
     };
 
     function createSprite(lines) {
@@ -1567,8 +1567,8 @@
       ])
     };
 
-    colors['D'] = '#1e1e24';
-    colors['F'] = '#2b2b36';
+    colors['D'] = '#392c31';
+    colors['F'] = '#392c31';
     SPRITES.floor = createSprite([
       'DFDFDFDFDFDFDFDF',
       'DFFDFDDFDFFDFDDF',
@@ -1710,7 +1710,7 @@
       }
       draw(ctx) {
         ctx.save();
-        ctx.strokeStyle = 'rgba(254, 240, 138, 0.8)';
+        ctx.strokeStyle = 'rgba(213, 190, 205, 0.8)';
         ctx.lineWidth = 4;
         ctx.lineCap = 'round';
         ctx.beginPath();
@@ -2027,7 +2027,7 @@
           this.vy = this.rollDir.y * this.speed * 2.5;
           super.update(dt);
 
-          entities.push(new Particle(this.x + this.w / 2, this.y + this.h / 2, 'rgba(255, 255, 255, 0.4)'));
+          entities.push(new Particle(this.x + this.w / 2, this.y + this.h / 2, 'rgba(230, 234, 238, 0.4)'));
 
           if (this.rollTimer <= 0) {
             this.isRolling = false;
@@ -2072,7 +2072,7 @@
 
           if (this.vx !== 0 || this.vy !== 0) {
             if (Math.random() < 0.2) {
-              const p = new Particle(this.x + this.w / 2 + (Math.random() - 0.5) * 10, this.y + this.h, 'rgba(150, 150, 150, 0.5)');
+              const p = new Particle(this.x + this.w / 2 + (Math.random() - 0.5) * 10, this.y + this.h, 'rgba(164, 157, 164, 0.5)');
               p.life = 0.3;
               p.maxLife = 0.3;
               entities.push(p);
@@ -2121,7 +2121,7 @@
       draw(ctx) {
         if (this.activeGrapple && !this.activeGrapple.dead) {
           ctx.save();
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+          ctx.strokeStyle = 'rgba(230, 234, 238, 0.5)';
           ctx.lineWidth = 2;
           ctx.beginPath();
           ctx.moveTo(this.x + this.w / 2 - camera.x, this.y + this.h / 2 - camera.y);
@@ -2377,9 +2377,9 @@
             const inPhase2 = this.hp < (this.maxHp * 0.5);
             if (inPhase2 && !this.phase2Active) {
               this.phase2Active = true;
-              entities.push(new FloatingText(this.x + this.w / 2, this.y - 10, "PHASE 2!", "#FF00FF"));
+              entities.push(new FloatingText(this.x + this.w / 2, this.y - 10, "PHASE 2!", "#c5b2bd"));
               for (let i = 0; i < 30; i++) {
-                entities.push(new Particle(this.x + this.w / 2, this.y + this.h / 2, "#FF00FF"));
+                entities.push(new Particle(this.x + this.w / 2, this.y + this.h / 2, "#c5b2bd"));
               }
             }
             let currentSpeed = this.speed;
@@ -2518,9 +2518,9 @@
               let sy = this.y + this.h / 2 - 16;
               entities.push(new Item(sx, sy, 'portal'));
               for (let i = 0; i < 40; i++) {
-                entities.push(new Particle(sx + 16, sy + 16, "#A855F7"));
+                entities.push(new Particle(sx + 16, sy + 16, "#a49da4"));
               }
-              entities.push(new FloatingText(sx + 16, sy - 10, "PORTAL OPEN!", "#A855F7"));
+              entities.push(new FloatingText(sx + 16, sy - 10, "PORTAL OPEN!", "#a49da4"));
               for (let dy = -1; dy <= 1; dy++) {
                 for (let dx = -1; dx <= 1; dx++) {
                   if (map[ty + dy] && map[ty + dy][tx + dx] === 1) {
@@ -2635,7 +2635,7 @@
         if (this.pickupDelay > 0) this.pickupDelay -= dt;
         if (this.type === 'portal') {
           if (Math.random() < 0.2) {
-            let p = new Particle(this.x + this.w / 2 + (Math.random() - 0.5) * 20, this.y + this.h / 2 + (Math.random() - 0.5) * 20, "#A855F7");
+            let p = new Particle(this.x + this.w / 2 + (Math.random() - 0.5) * 20, this.y + this.h / 2 + (Math.random() - 0.5) * 20, "#a49da4");
             p.vy = -30 - Math.random() * 20;
             p.vx = (Math.random() - 0.5) * 10;
             entities.push(p);
@@ -2715,8 +2715,8 @@
         this.maxLife = 0.3;
 
         for (let i = 0; i < 30; i++) {
-          entities.push(new Particle(x, y, "#f97316"));
-          entities.push(new Particle(x, y, "#ef4444"));
+          entities.push(new Particle(x, y, "#83898b"));
+          entities.push(new Particle(x, y, "#83898b"));
         }
         playSound('hit');
 
@@ -2742,11 +2742,11 @@
         ctx.globalAlpha = this.life / this.maxLife;
         ctx.beginPath();
         ctx.arc(this.x - camera.x + 32, this.y - camera.y + 32, 32 * (1 - this.life / this.maxLife), 0, Math.PI * 2);
-        ctx.fillStyle = "#ef4444";
+        ctx.fillStyle = "#83898b";
         ctx.fill();
         ctx.beginPath();
         ctx.arc(this.x - camera.x + 32, this.y - camera.y + 32, 24 * (1 - this.life / this.maxLife), 0, Math.PI * 2);
-        ctx.fillStyle = "#facc15";
+        ctx.fillStyle = "#a49da4";
         ctx.fill();
         ctx.restore();
       }
@@ -2798,7 +2798,7 @@
         ctx.fillStyle = this.color;
         ctx.font = '12px "Press Start 2P"';
         ctx.textAlign = 'center';
-        ctx.strokeStyle = '#000';
+        ctx.strokeStyle = '#392c31';
         ctx.lineWidth = 3;
         ctx.strokeText(this.text, this.x - camera.x, this.y - camera.y);
         ctx.fillText(this.text, this.x - camera.x, this.y - camera.y);
@@ -2905,7 +2905,7 @@
         ctx.drawImage(SPRITES.counter, this.x - camera.x - 4, this.y - camera.y + 8, 32, 32);
 
         // Draw Name Label
-        ctx.fillStyle = '#facc15';
+        ctx.fillStyle = '#a49da4';
         ctx.font = '8px "Press Start 2P"';
         ctx.textAlign = 'center';
         let name = '';
@@ -2915,9 +2915,9 @@
         if (this.type === 'mercenary') name = 'MERCENARY';
 
         // Drop shadow
-        ctx.fillStyle = '#000';
+        ctx.fillStyle = '#392c31';
         ctx.fillText(name, this.x - camera.x + this.w / 2 + 1, this.y - camera.y - 6 + 1);
-        ctx.fillStyle = '#facc15';
+        ctx.fillStyle = '#a49da4';
         ctx.fillText(name, this.x - camera.x + this.w / 2, this.y - camera.y - 6);
       }
     }
@@ -3195,7 +3195,7 @@
       }
 
       // Pre-render the background for optimization
-      bgCtx.fillStyle = '#000';
+      bgCtx.fillStyle = '#392c31';
       bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
       for (let y = 0; y < MAP_H; y++) {
         for (let x = 0; x < MAP_W; x++) {
@@ -3270,19 +3270,19 @@
       const startX = canvas.width - mmW - padding;
       const startY = canvas.height - mmH - padding;
 
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+      ctx.fillStyle = 'rgba(57, 44, 49, 0.6)';
       ctx.fillRect(startX - 5, startY - 5, mmW + 10, mmH + 10);
 
       for (let y = 0; y < MAP_H; y++) {
         for (let x = 0; x < MAP_W; x++) {
           if (map[y][x] === 1 || map[y][x] === 2) {
-            ctx.fillStyle = map[y][x] === 2 ? '#555' : '#888';
+            ctx.fillStyle = map[y][x] === 2 ? '#5a555a' : '#83898b';
             ctx.fillRect(startX + x * mmScale, startY + y * mmScale, mmScale, mmScale);
           } else if (map[y][x] === 3) {
-            ctx.fillStyle = '#ef4444';
+            ctx.fillStyle = '#83898b';
             ctx.fillRect(startX + x * mmScale, startY + y * mmScale, mmScale, mmScale);
           } else if (map[y][x] === 4) {
-            ctx.fillStyle = '#a855f7';
+            ctx.fillStyle = '#a49da4';
             ctx.fillRect(startX + x * mmScale, startY + y * mmScale, mmScale, mmScale);
           }
         }
@@ -3294,11 +3294,11 @@
         const px = Math.floor(e.x / TILE_SIZE);
         const py = Math.floor(e.y / TILE_SIZE);
         let color = null;
-        if (e.type === 'shopkeeper' || e.type === 'merchant') color = '#facc15';
-        else if (e.type === 'armorer') color = '#3b82f6';
-        else if (e.type === 'wizard') color = '#a855f7';
-        else if (e.type === 'mercenary') color = '#fca5a5';
-        else if (e.type === 'portal') color = '#a855f7';
+        if (e.type === 'shopkeeper' || e.type === 'merchant') color = '#a49da4';
+        else if (e.type === 'armorer') color = '#83898b';
+        else if (e.type === 'wizard') color = '#a49da4';
+        else if (e.type === 'mercenary') color = '#d5becd';
+        else if (e.type === 'portal') color = '#a49da4';
 
         if (color) {
           ctx.fillStyle = color;
@@ -3309,7 +3309,7 @@
       if (player) {
         const px = Math.floor(player.x / TILE_SIZE);
         const py = Math.floor(player.y / TILE_SIZE);
-        ctx.fillStyle = Math.floor(Date.now() / 300) % 2 === 0 ? '#ef4444' : 'transparent';
+        ctx.fillStyle = Math.floor(Date.now() / 300) % 2 === 0 ? '#83898b' : 'transparent';
         ctx.fillRect(startX + px * mmScale, startY + py * mmScale, mmScale, mmScale);
       }
     }
@@ -3361,7 +3361,7 @@
             camera.y = player.y + player.h / 2 - (canvas.height / CAMERA_ZOOM) / 2;
           }
 
-          ctx.fillStyle = '#000';
+          ctx.fillStyle = '#392c31';
           ctx.fillRect(0, 0, canvas.width, canvas.height);
 
           ctx.save();
@@ -3384,7 +3384,7 @@
             const pulse = (Math.sin(Date.now() / 200) + 1) / 2; // 0 to 1
             const opacity = 0.2 + (pulse * 0.4);
             const gradient = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, canvas.height / 4, canvas.width / 2, canvas.height / 2, canvas.width);
-            gradient.addColorStop(0, 'rgba(255,0,0,0)');
+            gradient.addColorStop(0, 'rgba(74, 60, 74, 0)');
             gradient.addColorStop(1, `rgba(255,0,0,${opacity})`);
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -3398,16 +3398,16 @@
               const bx = canvas.width / 2 - barW / 2;
               const by = 50;
 
-              ctx.fillStyle = 'rgba(0,0,0,0.8)';
+              ctx.fillStyle = 'rgba(57, 44, 49, 0.8)';
               ctx.fillRect(bx - 4, by - 4, barW + 8, barH + 8);
 
-              ctx.fillStyle = '#ef4444';
+              ctx.fillStyle = '#83898b';
               ctx.fillRect(bx, by, barW, barH);
 
-              ctx.fillStyle = '#22c55e';
+              ctx.fillStyle = '#73817b';
               ctx.fillRect(bx, by, barW * (boss.hp / boss.maxHp), barH);
 
-              ctx.fillStyle = '#fff';
+              ctx.fillStyle = '#e6eaee';
               ctx.font = '12px "Press Start 2P"';
               ctx.textAlign = 'center';
               ctx.fillText("BOSS", canvas.width / 2, by + 14);
@@ -3416,9 +3416,9 @@
           }
         }
       } else if (STATE === 'MENU') {
-        ctx.fillStyle = '#0f0a14';
+        ctx.fillStyle = '#392c31';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = 'rgba(168, 85, 247, 0.1)';
+        ctx.fillStyle = 'rgba(164, 157, 164, 0.1)';
         const t = timestamp * 0.02;
         for (let i = 0; i < 50; i++) {
           const x = (i * 137 + t * ((i % 3) + 1)) % canvas.width;
@@ -3444,7 +3444,7 @@
             const x = cCanvas.width / 2 - w / 2;
             const y = cCanvas.height / 2 - h / 2 + bob;
 
-            cCtx.fillStyle = 'rgba(0,0,0,0.1)';
+            cCtx.fillStyle = 'rgba(57, 44, 49, 0.1)';
             cCtx.beginPath();
             cCtx.ellipse(cCanvas.width / 2, cCanvas.height / 2 + 60, window.codexSprite.width * scale * 0.4 * (1 / squeeze), window.codexSprite.height * scale * 0.15 * squeeze, 0, 0, Math.PI * 2);
             cCtx.fill();
@@ -3603,7 +3603,7 @@
         if (!isUnlocked) {
           window.codexSprite = null;
           title.innerText = '???';
-          desc.innerHTML = '<p style="text-align:center; color:#555; margin-top: 50px;">This entry has not been unlocked yet. Encounter this enemy in the dungeon to reveal its secrets.</p>';
+          desc.innerHTML = '<p style="text-align:center; color:#5a555a; margin-top: 50px;">This entry has not been unlocked yet. Encounter this enemy in the dungeon to reveal its secrets.</p>';
         } else {
           const tmp = new Enemy(-1000, -1000, type);
           const rec = CODEX_RECOMMENDATIONS[type] || 'Blaster';
@@ -3616,8 +3616,8 @@
         <p><strong>Max HP:</strong> ${tmp.maxHp}</p>
         <p><strong>Speed:</strong> ${tmp.speed}</p>
         <p><strong>Base Dmg:</strong> ${tmp.baseDmg}</p>
-        <p style="color:#2563eb; margin-top:15px;"><strong>Recommended Weapon:</strong><br>${rec}</p>
-        <p style="margin-top:15px; font-style:italic; color:#444;">${description}</p>
+        <p style="color:#83898b; margin-top:15px;"><strong>Recommended Weapon:</strong><br>${rec}</p>
+        <p style="margin-top:15px; font-style:italic; color:#4a3c4a;">${description}</p>
       `;
         }
 
@@ -3857,18 +3857,18 @@
     }
 
     const realRarities = [
-      { name: 'Common', chance: 0.10, color: '#d1d5db', mult: 1 },
-      { name: 'Uncommon', chance: 0.25, color: '#22c55e', mult: 2 },
-      { name: 'Rare', chance: 0.35, color: '#3b82f6', mult: 3 },
-      { name: 'Legendary', chance: 0.25, color: '#facc15', mult: 5 },
-      { name: 'Mythic', chance: 0.05, color: '#ef4444', mult: 10 }
+      { name: 'Common', chance: 0.10, color: '#ded6de', mult: 1 },
+      { name: 'Uncommon', chance: 0.25, color: '#73817b', mult: 2 },
+      { name: 'Rare', chance: 0.35, color: '#83898b', mult: 3 },
+      { name: 'Legendary', chance: 0.25, color: '#a49da4', mult: 5 },
+      { name: 'Mythic', chance: 0.05, color: '#83898b', mult: 10 }
     ];
 
     const fakeRarities = [
-      { name: 'Common', chance: 0.50, color: '#d1d5db', mult: 1 },
-      { name: 'Uncommon', chance: 0.30, color: '#22c55e', mult: 2 },
-      { name: 'Rare', chance: 0.15, color: '#3b82f6', mult: 3 },
-      { name: 'Legendary', chance: 0.05, color: '#facc15', mult: 5 }
+      { name: 'Common', chance: 0.50, color: '#ded6de', mult: 1 },
+      { name: 'Uncommon', chance: 0.30, color: '#73817b', mult: 2 },
+      { name: 'Rare', chance: 0.15, color: '#83898b', mult: 3 },
+      { name: 'Legendary', chance: 0.05, color: '#a49da4', mult: 5 }
     ];
 
     function generateSingleCard(useRealOdds, currentLegendaryCount = 0) {
@@ -3976,7 +3976,7 @@
         for (let i = 0; i < 4; i++) {
           const cardInner = document.getElementById(`merchant-card-${i}`);
           if (i === selectedIndex) {
-            cardInner.style.boxShadow = '0 0 20px 5px #facc15'; // highlight selected
+            cardInner.style.boxShadow = '0 0 20px 5px #a49da4'; // highlight selected
             cardInner.style.transform = 'rotateY(180deg) scale(1.05)';
             cardInner.style.zIndex = '10';
           } else {
@@ -4001,10 +4001,10 @@
         const baseWeapons = ['blaster', 'sword', 'aa_grappler', 'staff', 'el_clover', 'claymore'];
         let scale = Math.max(1, Math.ceil(level / 2));
         const modifiers = [
-          { name: '', costMod: 0, stat: null, val: 0, color: '#facc15' },
-          { name: 'Swift ', costMod: 15 * scale, stat: 'speed', val: 10 * scale, color: '#3b82f6' },
-          { name: 'Sharp ', costMod: 30 * scale, stat: 'dmg', val: 1 * scale, color: '#ef4444' },
-          { name: 'Masterwork ', costMod: 50 * scale, stat: 'both', val: 1 * scale, color: '#a855f7' }
+          { name: '', costMod: 0, stat: null, val: 0, color: '#a49da4' },
+          { name: 'Swift ', costMod: 15 * scale, stat: 'speed', val: 10 * scale, color: '#83898b' },
+          { name: 'Sharp ', costMod: 30 * scale, stat: 'dmg', val: 1 * scale, color: '#83898b' },
+          { name: 'Masterwork ', costMod: 50 * scale, stat: 'both', val: 1 * scale, color: '#a49da4' }
         ];
 
         for (let i = 0; i < 3; i++) {
@@ -4037,7 +4037,7 @@
             title: 'Rusty Blade',
             desc: '-50% Spd, -50% Max HP, +1 Dmg',
             cost: player.gold,
-            color: '#888888',
+            color: '#83898b',
             stat: 'cursed_weapon',
             val: 0
           };
@@ -4050,9 +4050,9 @@
         const baseDesc = { leather: '25% Dmg Red.', iron: '50% Dmg Red.', vampire: '75% Dmg Red.' };
         let scale = Math.max(1, Math.ceil(level / 2));
         const modifiers = [
-          { name: '', costMod: 0, stat: null, val: 0, color: '#facc15' },
-          { name: 'Vital ', costMod: 30 * scale, stat: 'maxhp', val: 1 * scale, color: '#ef4444' },
-          { name: 'Spiked ', costMod: 30 * scale, stat: 'dmg', val: 1 * scale, color: '#f97316' }
+          { name: '', costMod: 0, stat: null, val: 0, color: '#a49da4' },
+          { name: 'Vital ', costMod: 30 * scale, stat: 'maxhp', val: 1 * scale, color: '#83898b' },
+          { name: 'Spiked ', costMod: 30 * scale, stat: 'dmg', val: 1 * scale, color: '#83898b' }
         ];
 
         for (let i = 0; i < 3; i++) {
@@ -4083,7 +4083,7 @@
             title: 'Cardboard Box',
             desc: '0% Dmg Red.<br/>-5 Max HP, -50 Spd',
             cost: player.gold,
-            color: '#888888',
+            color: '#83898b',
             stat: 'cursed_armor',
             val: 0
           };
@@ -4121,7 +4121,7 @@
             <div class="card-face card-back" style="border-color:${c.color};">
               <div class="card-title" style="color:${c.color}; font-size:12px;">${c.title}</div>
               <div class="card-desc" style="font-size:12px;">${c.desc}</div>
-              <div class="card-rarity" style="color:#fcd34d; margin-top:20px;">${c.cost}g</div>
+              <div class="card-rarity" style="color:#c5b2bd; margin-top:20px;">${c.cost}g</div>
             </div>
           </div>
         `;
@@ -4211,9 +4211,9 @@
             const btn = document.createElement('button');
             btn.innerText = `Equip ${a}`;
             btn.style.padding = '5px 10px';
-            btn.style.background = player.armor === a ? '#3b82f6' : '#444';
+            btn.style.background = player.armor === a ? '#83898b' : '#4a3c4a';
             btn.style.color = 'white';
-            btn.style.border = '1px solid #fff';
+            btn.style.border = '1px solid #e6eaee';
             btn.style.cursor = 'pointer';
             btn.onclick = () => {
               player.armor = a;
@@ -4235,7 +4235,7 @@
             <div class="card-face card-back" style="border-color:${c.color};">
               <div class="card-title" style="color:${c.color}; font-size:12px;">${c.title}</div>
               <div class="card-desc" style="font-size:12px;">${c.desc}</div>
-              <div class="card-rarity" style="color:#fcd34d; margin-top:20px;">${c.cost}g</div>
+              <div class="card-rarity" style="color:#c5b2bd; margin-top:20px;">${c.cost}g</div>
             </div>
           </div>
         `;
