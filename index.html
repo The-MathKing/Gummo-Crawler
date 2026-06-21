@@ -347,6 +347,7 @@
 
       <div id="hud">
         <div class="stat"><span id="hud-floor">Floor: 1</span></div>
+        <div class="stat" style="color: #ecd8b7;"><span id="hud-enemies">Enemies Left: 0</span></div>
         <div class="stat stat-hp">HP: <span id="hud-hp">3/3</span></div>
         <div class="stat stat-gold">Gold: <span id="hud-gold">0</span></div>
       </div>
@@ -637,6 +638,14 @@
         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
         osc.start(now);
         osc.stop(now + 0.05);
+      } else if (type === 'portal') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(400, now);
+        osc.frequency.exponentialRampToValueAtTime(1000, now + 0.4);
+        gain.gain.setValueAtTime(sfxVolume * 0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+        osc.start(now);
+        osc.stop(now + 0.4);
       }
     }
 
@@ -1966,6 +1975,19 @@
         }
         document.getElementById('hud-hp').innerText = `${player.hp}/${player.maxHp}`;
         document.getElementById('hud-gold').innerText = player.gold;
+
+        const enemiesEl = document.getElementById('hud-enemies');
+        if (enemiesEl) {
+          if (level % 10 === 0) {
+            const hasBoss = entities.some(e => e.type && e.type.startsWith('boss') && !e.dead);
+            enemiesEl.innerText = hasBoss ? "Defeat the Boss!" : "Floor Cleared!";
+            enemiesEl.style.color = hasBoss ? '#a1516a' : '#778f73';
+          } else {
+            const count = entities.filter(e => e.faction === 'enemy' && !e.dead && e.type !== 'mimic').length;
+            enemiesEl.innerText = count > 0 ? `Enemies Left: ${count}` : "Floor Cleared!";
+            enemiesEl.style.color = count > 0 ? '#ecd8b7' : '#778f73';
+          }
+        }
       }
       updateHotbar();
     }
@@ -2789,27 +2811,40 @@
         this.type = type;
         this.value = value;
         this.pickupDelay = 0.5;
+        this.locked = false;
+        this.lastWarningTime = 0;
       }
       update(dt) {
         if (this.pickupDelay > 0) this.pickupDelay -= dt;
         if (this.type === 'portal') {
-          if (Math.random() < 0.2) {
-            let p = new Particle(this.x + this.w / 2 + (Math.random() - 0.5) * 20, this.y + this.h / 2 + (Math.random() - 0.5) * 20, "#99b4dd");
-            p.vy = -30 - Math.random() * 20;
-            p.vx = (Math.random() - 0.5) * 10;
-            entities.push(p);
+          if (!this.locked) {
+            if (Math.random() < 0.2) {
+              let p = new Particle(this.x + this.w / 2 + (Math.random() - 0.5) * 20, this.y + this.h / 2 + (Math.random() - 0.5) * 20, "#99b4dd");
+              p.vy = -30 - Math.random() * 20;
+              p.vx = (Math.random() - 0.5) * 10;
+              entities.push(p);
+            }
           }
         }
         if (this.pickupDelay <= 0 && player && !player.dead && rectIntersect(this, player)) {
-          this.die();
-          if (this.type === 'gold') {
+          if (this.type === 'portal') {
+            if (this.locked) {
+              if (Date.now() - this.lastWarningTime > 2000) {
+                this.lastWarningTime = Date.now();
+                entities.push(new FloatingText(this.x + 16, this.y - 10, "PORTAL LOCKED! DEFEAT ALL ENEMIES", "#a1516a"));
+                playSound('hit');
+              }
+            } else {
+              this.die();
+              saveGame();
+              floorTransitionPending = true;
+            }
+          } else if (this.type === 'gold') {
+            this.die();
             playSound('coin');
             player.gold += this.value;
             runGoldCollected += this.value;
             saveGame();
-          } else if (this.type === 'portal') {
-            saveGame();
-            floorTransitionPending = true;
           }
         }
       }
@@ -2820,28 +2855,41 @@
           const cy = this.y - camera.y + this.h / 2;
           ctx.translate(cx, cy);
           const time = Date.now() * 0.003;
-          ctx.rotate(time);
-          const scale = 1 + Math.sin(time * 2) * 0.15;
-          ctx.scale(scale, scale);
+          if (this.locked) {
+            ctx.rotate(time * 0.2);
+            ctx.scale(0.8, 0.8);
+            ctx.globalAlpha = 0.5;
+          } else {
+            ctx.rotate(time);
+            const scale = 1 + Math.sin(time * 2) * 0.15;
+            ctx.scale(scale, scale);
+          }
           if (this.sprite) {
             ctx.drawImage(this.sprite, -this.w / 2, -this.h / 2, this.w, this.h);
           }
           ctx.restore();
 
-          if (level <= 3 && player && !player.dead) {
+          if (player && !player.dead) {
             const d = Math.hypot((this.x + this.w/2) - (player.x + player.w/2), (this.y + this.h/2) - (player.y + player.h/2));
             if (d < 100) {
               ctx.save();
-              ctx.fillStyle = '#f2ec8b';
               ctx.font = '8px "Press Start 2P", monospace';
               ctx.textAlign = 'center';
               ctx.shadowColor = '#2e222f';
               ctx.shadowBlur = 4;
               ctx.shadowOffsetX = 1;
               ctx.shadowOffsetY = 1;
-              ctx.fillText("Proceed to next floor?", cx, cy - 40);
-              ctx.fillStyle = '#993d41';
-              ctx.fillText("(No coming back)", cx, cy - 30);
+              if (this.locked) {
+                ctx.fillStyle = '#ecd8b7';
+                ctx.fillText("Portal Locked", cx, cy - 45);
+                ctx.fillStyle = '#a1516a';
+                ctx.fillText("(Defeat all enemies)", cx, cy - 35);
+              } else if (level <= 3) {
+                ctx.fillStyle = '#f2ec8b';
+                ctx.fillText("Proceed to next floor?", cx, cy - 45);
+                ctx.fillStyle = '#993d41';
+                ctx.fillText("(No coming back)", cx, cy - 35);
+              }
               ctx.restore();
             }
           }
@@ -3359,7 +3407,9 @@
             const ty = Math.floor(r.y + 2);
             const sx = tx * TILE_SIZE;
             const sy = ty * TILE_SIZE;
-            entities.push(new Item(sx, sy, 'portal'));
+            const portal = new Item(sx, sy, 'portal');
+            portal.locked = true;
+            entities.push(portal);
             for (let dy = -1; dy <= 1; dy++) {
               for (let dx = -1; dx <= 1; dx++) {
                 if (map[ty + dy] && map[ty + dy][tx + dx] === 1) {
@@ -3509,6 +3559,22 @@
             if (!e) continue;
             e.update(dt);
             if (e.dead) entities.splice(i, 1);
+          }
+
+          // Check for portal unlocking on normal floors
+          if (level % 10 !== 0) {
+            const portal = entities.find(e => e.type === 'portal' && !e.dead);
+            if (portal && portal.locked) {
+              const activeEnemiesCount = entities.filter(e => e.faction === 'enemy' && !e.dead && e.type !== 'mimic').length;
+              if (activeEnemiesCount === 0) {
+                portal.locked = false;
+                playSound('portal');
+                showNotification("THE PORTAL UNLOCKED!");
+                for (let i = 0; i < 40; i++) {
+                  entities.push(new Particle(portal.x + 16, portal.y + 16, "#99b4dd"));
+                }
+              }
+            }
           }
 
           const promptEl = document.getElementById('interact-prompt');
