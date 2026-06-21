@@ -1297,56 +1297,56 @@
       ]),
       boss: createSprite([
         '......bbbb......',
-        '....bbPPrrbb....',
-        '...bPPrrrrPPb...',
-        '..bPbbPPrrbbPb..',
-        '..bPwPPrrrPwPb..',
-        '..bPPPPPPPPPeb..',
-        '.bPPPPbbbbPPPPb.',
-        '.bPPPbbwwbbPPPb.',
-        '.bPPbbwwwwbbPPb.',
-        '.bPPbwwwwwwbPPb.',
-        '.bPPbwwwwwwbPPb.',
-        '..bPbbwwwwbbPb..',
-        '..bPPbbbbbbPPb..',
-        '...bPPPPPPPPb...',
+        '.....byyyyb.....',
+        '....byyyyyyb....',
         '....bbbbbbbb....',
+        '...bwwwwwwwwb...',
+        '..bwwwwwwwwwwb..',
+        '.bwwwwwwwwwwwwb.',
+        '.bwwbbwwwwbbwwb.',
+        '.bwwbbwwwwbbwwb.',
+        '.bwwbbwwwwbbwwb.',
+        '.bwwwwbbbbwwwwb.',
+        '..bwwwwwwwwwwb..',
+        '..bwwbbwwbbwwb..',
+        '...bwb.wb.bwb...',
+        '....b..b..b.....',
         '................'
       ]),
       boss2: createSprite([
         '......bbbb......',
-        '....bbrrrrbb....',
-        '...brrrrrrrrb...',
-        '..brbbrrrrbbbr..',
-        '..brwrrrrrwrbr..',
-        '..brrrrrrrrreb..',
-        '.brrrrbbbbrrrrb.',
-        '.brrrbbwwbbrrrb.',
-        '.brrbbwwwwbbrrb.',
-        '.brrbwwwwwwbrrb.',
-        '.brrbwwwwwwbrrb.',
-        '..brbbwwwwbbrb..',
-        '..brrbbbbbbrrb..',
-        '...brrrrrrrrb...',
-        '....bbbbbbbb....',
+        '....bbppppbb....',
+        '...bppppppppb...',
+        '..bppppprrrppb..',
+        '.bppprrrrrrrrpb.',
+        '.bpprrbbbbbbrrb.',
+        '.bpprbwwwwwbrrb.',
+        '.bprbwwwywwbrrb.',
+        '.bprbwwwyywbrrb.',
+        '.bprbwwwwwwbrrb.',
+        '.bpprbbbbbbrrpb.',
+        '..bprrrrrrrrpb..',
+        '..bppprrrrpppb..',
+        '...bbppppppbb...',
+        '.....bbbbbb.....',
         '................'
       ]),
       boss3: createSprite([
         '......bbbb......',
-        '....bbBBrrbb....',
-        '...bBBrrrrBBb...',
-        '..bBbbBBrrbbBb..',
-        '..bBwBBrrrBwBb..',
-        '..bBBBBBBBBBeb..',
-        '.bBBBBbbbbBBBBb.',
-        '.bBBBbbwwbbBBBb.',
-        '.bBBbbwwwwbbBBb.',
-        '.bBBbwwwwwwbBBb.',
-        '.bBBbwwwwwwbBBb.',
-        '..bBbbwwwwbbBb..',
-        '..bBBbbbbbbBBb..',
-        '...bBBBBBBBBb...',
+        '....bbllllbb....',
+        '...bllllllllb...',
+        '..bllbbllbbllb..',
+        '.bllbbrrlbbrrlb.',
+        '.bllddrrlddrrlb.',
+        '.bldddllldddllb.',
+        '.bllllllllllllb.',
+        '.blddddddddddlb.',
+        '.bllddddddddllb.',
+        '..blGGGGGGGGlb..',
+        '..blGGGGGGGGlb..',
+        '...bllGGGGllb...',
         '....bbbbbbbb....',
+        '......bbbb......',
         '................'
       ]),
       gold: createSprite([
@@ -2382,50 +2382,117 @@
                 entities.push(new Particle(this.x + this.w / 2, this.y + this.h / 2, "#e19393"));
               }
             }
-            let currentSpeed = this.speed;
-            if (inPhase2) currentSpeed *= 1.5;
-
-            this.vx = Math.cos(angle) * currentSpeed;
-            this.vy = Math.sin(angle) * currentSpeed;
-
             if (this.type === 'boss') {
+              if (inPhase2 && Math.random() < 0.005) {
+                this.x = player.x + (Math.random() > 0.5 ? 100 : -100);
+                this.y = player.y + (Math.random() > 0.5 ? 100 : -100);
+                entities.push(new Enemy(this.x, this.y, 'skeleton'));
+              }
+              const moveAngle = angle + Math.sin(Date.now() / 1000);
+              if (d > 200) {
+                this.vx = Math.cos(moveAngle) * this.speed;
+                this.vy = Math.sin(moveAngle) * this.speed;
+              } else if (d < 150) {
+                this.vx = -Math.cos(moveAngle) * this.speed;
+                this.vy = -Math.sin(moveAngle) * this.speed;
+              } else {
+                this.vx = 0; this.vy = 0;
+              }
+
               if (this.cooldown <= 0) {
-                const cd = inPhase2 ? 1.5 : 2.5;
-                for (let i = 0; i < 8; i++) {
-                  const a = (Math.PI * 2 / 8) * i + (inPhase2 ? Math.random() : 0);
-                  entities.push(new Projectile(this.x + this.w / 2 - 8, this.y + this.h / 2 - 8, Math.cos(a), Math.sin(a), 'enemy', this.dmg, SPRITES.arrow));
+                const numProjectiles = inPhase2 ? 16 : 12;
+                for (let i = 0; i < numProjectiles; i++) {
+                  const a = (Math.PI * 2 / numProjectiles) * i;
+                  const p = new Projectile(this.x + this.w / 2 - 8, this.y + this.h / 2 - 8, Math.cos(a), Math.sin(a), 'enemy', this.dmg, SPRITES.magic);
+                  p.speed = 80;
+                  entities.push(p);
                 }
-                this.cooldown = cd;
+                this.cooldown = inPhase2 ? 2.5 : 3.5;
               }
             } else if (this.type === 'boss2') {
-              if (!this.spiralAngle) this.spiralAngle = 0;
-              this.spiralAngle += (inPhase2 ? 0.3 : 0.15);
+              this.vx = Math.cos(angle) * (this.speed * 0.2);
+              this.vy = Math.sin(angle) * (this.speed * 0.2);
 
-              if (this.cooldown <= 0) {
-                const cd = inPhase2 ? 0.2 : 0.4;
-                entities.push(new Projectile(this.x + this.w / 2 - 8, this.y + this.h / 2 - 8, Math.cos(this.spiralAngle), Math.sin(this.spiralAngle), 'enemy', this.dmg, SPRITES.magic));
-                entities.push(new Projectile(this.x + this.w / 2 - 8, this.y + this.h / 2 - 8, Math.cos(this.spiralAngle + Math.PI), Math.sin(this.spiralAngle + Math.PI), 'enemy', this.dmg, SPRITES.magic));
-                this.cooldown = cd;
+              if (Math.random() < 0.02) {
+                entities.push(new Bomb(this.x + this.w / 2 - 8, this.y + this.h / 2 - 8, player.x + player.w / 2, player.y + player.h / 2, this.dmg));
+              }
+
+              if (inPhase2) {
+                if (!this.sweepAngle) this.sweepAngle = angle;
+                this.sweepAngle += 0.05;
+                if (this.cooldown <= 0) {
+                  const p = new Projectile(this.x + this.w / 2 - 8, this.y + this.h / 2 - 8, Math.cos(this.sweepAngle), Math.sin(this.sweepAngle), 'enemy', this.dmg, SPRITES.arrow);
+                  p.speed = 300;
+                  entities.push(p);
+                  this.cooldown = 0.05;
+                }
+              } else {
+                if (this.cooldown <= 0) {
+                  const p = new Projectile(this.x + this.w / 2 - 8, this.y + this.h / 2 - 8, Math.cos(angle), Math.sin(angle), 'enemy', this.dmg, SPRITES.arrow);
+                  p.speed = 450;
+                  entities.push(p);
+                  this.cooldown = 1.0;
+                }
               }
             } else if (this.type === 'boss3') {
-              if (this.cooldown <= 0) {
-                const cd = inPhase2 ? 2.0 : 3.0;
-                const burstAngle = angle;
-                for (let i = -2; i <= 2; i++) {
-                  const a = burstAngle + (i * 0.2);
-                  entities.push(new Projectile(this.x + this.w / 2 - 8, this.y + this.h / 2 - 8, Math.cos(a), Math.sin(a), 'enemy', this.dmg, SPRITES.magic));
+              if (!this.stateTimer) this.stateTimer = 0;
+              this.stateTimer -= dt;
+
+              if (this.stateTimer <= 0) {
+                if (!this.isCharging) {
+                  this.isCharging = true;
+                  this.stateTimer = 1.5;
+                  this.chargeAngle = angle;
+                } else {
+                  this.isCharging = false;
+                  this.stateTimer = 2.0;
+                  for (let i = 0; i < 10; i++) {
+                    const a = (Math.PI * 2 / 10) * i;
+                    entities.push(new Projectile(this.x + this.w / 2 - 8, this.y + this.h / 2 - 8, Math.cos(a), Math.sin(a), 'enemy', this.dmg, SPRITES.magic));
+                  }
                 }
-                if (inPhase2 && Math.random() < 0.5) {
-                  entities.push(new Enemy(this.x + randInt(-30, 30), this.y + randInt(-30, 30), 'bat'));
+              }
+
+              if (this.isCharging) {
+                this.vx = Math.cos(this.chargeAngle) * this.speed * 2.5;
+                this.vy = Math.sin(this.chargeAngle) * this.speed * 2.5;
+              } else {
+                this.vx = 0;
+                this.vy = 0;
+              }
+
+              if (inPhase2 && !this.orbitalsSpawned) {
+                this.orbitalsSpawned = true;
+                this.orbitals = [];
+                for(let i=0; i<4; i++) {
+                  const p = new Projectile(this.x, this.y, 0, 0, 'enemy', this.dmg, SPRITES.magic);
+                  p.isOrbital = true;
+                  p.orbitAngle = (Math.PI/2) * i;
+                  p.life = 99999;
+                  entities.push(p);
+                  this.orbitals.push(p);
                 }
-                this.cooldown = cd;
+              }
+
+              if (this.orbitalsSpawned) {
+                this.orbitals.forEach(p => {
+                  if (p.life > 0) {
+                    p.orbitAngle += dt * 2;
+                    p.x = this.x + this.w/2 - 8 + Math.cos(p.orbitAngle) * 50;
+                    p.y = this.y + this.h/2 - 8 + Math.sin(p.orbitAngle) * 50;
+                    p.vx = 0; p.vy = 0;
+                  }
+                });
               }
             }
 
-            if (d < 50 && this.cooldown <= 1) {
-              player.takeDamage(this.dmg);
-              this.cooldown = 2;
+            if (d < 50) {
+              if (!this.meleeCooldown || this.meleeCooldown <= 0) {
+                player.takeDamage(this.dmg);
+                this.meleeCooldown = 2;
+              }
             }
+            if (this.meleeCooldown > 0) this.meleeCooldown -= dt;
           }
         } else {
           this.vx = 0; this.vy = 0;
