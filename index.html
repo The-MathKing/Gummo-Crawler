@@ -443,6 +443,10 @@
 
           <div id="dev-tools" class="settings-row hidden">
             <label style="color:#a1516a;">DEVELOPER TOOLS</label>
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+              <input type="number" id="dev-floor-input" placeholder="Floor" min="1" style="width: 60px; background: #0d0e1e; border: 1px solid #d3dfe1; color: white; padding: 5px;">
+              <button id="dev-set-floor-btn" style="margin:0; padding:10px; font-size:10px; flex:1;">SET FLOOR</button>
+            </div>
             <button id="dev-infinite-coins-btn" style="margin:0; padding:10px; font-size:10px; width:100%;">Infinite
               Coins: OFF</button>
 
@@ -3721,6 +3725,20 @@
         isInfiniteCoinsEnabled = !isInfiniteCoinsEnabled;
         e.target.innerText = `Infinite Coins: ${isInfiniteCoinsEnabled ? 'ON' : 'OFF'}`;
         updateHUD();
+      };
+
+      document.getElementById('dev-set-floor-btn').onclick = () => {
+        const floorVal = parseInt(document.getElementById('dev-floor-input').value);
+        if (floorVal && floorVal > 0) {
+          const d = getSaveData() || {};
+          d.currentFloor = floorVal;
+          if (!d.highestFloor || d.highestFloor < floorVal) d.highestFloor = floorVal;
+          if (d.maxHp === undefined) d.maxHp = 10;
+          if (d.dmg === undefined) d.dmg = 1;
+          localStorage.setItem('dungeonCrawlerSave', JSON.stringify(d));
+          updateMenuUI();
+          showNotification(`Floor set to ${floorVal}!`);
+        }
       };
 
 
